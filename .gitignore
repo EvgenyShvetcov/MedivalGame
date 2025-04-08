@@ -1,0 +1,61 @@
+# ───── Backend (NestJS + TypeORM) ─────
+/backend/node_modules
+/backend/dist
+/backend/build
+/backend/coverage
+/backend/.env
+/backend/.env.*.local
+/backend/ormconfig.json
+/backend/ormconfig.*.json
+/backend/*.js.map
+/backend/.DS_Store
+/backend/*.log
+
+# VSCode
+/backend/.vscode/*
+!/backend/.vscode/settings.json
+!/backend/.vscode/tasks.json
+!/backend/.vscode/launch.json
+!/backend/.vscode/extensions.json
+
+# ───── Frontend (Vite / React / etc.) ─────
+/frontend/node_modules
+/frontend/dist
+/frontend/build
+/frontend/.env
+/frontend/.env.*.local
+/frontend/.DS_Store
+/frontend/*.log
+
+# VSCode
+/frontend/.vscode/*
+!/frontend/.vscode/settings.json
+!/frontend/.vscode/tasks.json
+!/frontend/.vscode/launch.json
+!/frontend/.vscode/extensions.json
+
+# ───── Global ─────
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Optional: system crash reports
+*.pid
+*.seed
+*.pid.lock
+*.swp
+*.swo
