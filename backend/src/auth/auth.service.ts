@@ -40,7 +40,10 @@ export class AuthService {
 
     await this.playerRepository.save(player);
 
-    return { message: 'Registered' };
+    const payload = { sub: player.id, username: player.username };
+    const token = await this.jwtService.signAsync(payload);
+
+    return { access_token: token };
   }
 
   async login(username: string, password: string) {
