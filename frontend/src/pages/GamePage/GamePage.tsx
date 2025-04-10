@@ -19,10 +19,14 @@ const GamePage: FC = () => {
     if (!player) dispatch(fetchPlayerRequest());
   }, [dispatch, player]);
 
-  const imageUrl = player?.location?.imageUrl;
+  // 🔥 Формируем абсолютный путь
+  const baseBackendUrl = "https://medival-backend.onrender.com";
+  const imageUrl = player?.location?.imageUrl
+    ? `${baseBackendUrl}${player.location.imageUrl}`
+    : undefined;
 
   return (
-    <BackgroundWrapper imageUrl={imageUrl}>
+    <BackgroundWrapper $imageUrl={imageUrl}>
       <PageLoaderWrapper isLoading={isLoading} error={error}>
         <LocationActions />
       </PageLoaderWrapper>
@@ -32,12 +36,10 @@ const GamePage: FC = () => {
 
 export default GamePage;
 
-// ——— Стили ———
-
-const BackgroundWrapper = styled.div<{ imageUrl?: string }>`
+const BackgroundWrapper = styled.div<{ $imageUrl?: string }>`
   min-height: 100vh;
-  background: ${({ imageUrl }) =>
-    imageUrl ? `url(${imageUrl}) center/cover no-repeat` : "#111"};
+  background: ${({ $imageUrl }) =>
+    $imageUrl ? `url(${$imageUrl}) center/cover no-repeat` : "#111"};
   display: flex;
   justify-content: center;
   align-items: start;
