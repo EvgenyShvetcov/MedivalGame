@@ -52,18 +52,6 @@ export const ActionButton = styled.button`
   }
 `;
 
-export const BackgroundWrapper = styled.div<{ imageUrl?: string }>`
-  min-height: 100vh;
-  background-image: ${({ imageUrl }) =>
-    imageUrl ? `url(${imageUrl})` : "none"};
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding: 2rem;
-`;
-
 export const MoveButton = styled.button`
   padding: 0.5rem 1rem;
   font-size: 0.95rem;
@@ -81,4 +69,14 @@ export const MoveButton = styled.button`
     background: #555;
     cursor: not-allowed;
   }
+`;
+
+const BackgroundWrapper = styled.div<{ imageUrl?: string }>`
+  min-height: 100vh;
+  background: ${({ imageUrl }) =>
+    imageUrl ? `url(${imageUrl}) center/cover no-repeat` : "#111"};
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  padding: 2rem;
 `;

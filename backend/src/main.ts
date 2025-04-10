@@ -17,7 +17,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/static',
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Medival Game API')

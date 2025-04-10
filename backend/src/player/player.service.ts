@@ -112,7 +112,7 @@ export class PlayerService {
     }
   }
 
-  async changeLocation(playerId: string, locationId: string): Promise<Player> {
+  async changeLocation(playerId: string, locationKey: string): Promise<Player> {
     const player = await this.playerRepository.findOne({
       where: { id: playerId },
       relations: ['location'],
@@ -121,8 +121,9 @@ export class PlayerService {
     if (!player) throw new NotFoundException('Игрок не найден');
 
     const newLocation = await this.locationRepository.findOne({
-      where: { id: locationId },
+      where: { key: locationKey },
     });
+
     if (!newLocation) throw new NotFoundException('Локация не найдена');
 
     const currentLocation = await this.locationRepository.findOne({
@@ -130,11 +131,11 @@ export class PlayerService {
       relations: ['availableDestinations'],
     });
 
-    if (
-      !currentLocation?.availableDestinations.some(
-        (loc) => loc.id === locationId,
-      )
-    ) {
+    const isAllowed = currentLocation?.availableDestinations.some(
+      (loc) => loc.key === locationKey,
+    );
+
+    if (!isAllowed) {
       throw new Error('Нельзя перейти в эту локацию');
     }
 

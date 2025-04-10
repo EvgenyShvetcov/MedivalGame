@@ -78,8 +78,8 @@ export class PlayerController {
     return { online: isOnline };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('change-location')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Сменить локацию игрока' })
   @ApiResponse({ status: 200, description: 'Локация успешно обновлена' })
@@ -88,6 +88,6 @@ export class PlayerController {
     @CurrentPlayer() player: { userId: string },
     @Body() dto: ChangeLocationDto,
   ) {
-    return this.playerService.changeLocation(player.userId, dto.locationId);
+    return this.playerService.changeLocation(player.userId, dto.locationKey);
   }
 }
