@@ -23,7 +23,7 @@ async function seed() {
     name: 'Город',
     description:
       'Центральная локация мира. Здесь можно отдохнуть, сходить в магазин и на арену.',
-    imageUrl: '/static/locations/city.jpg',
+    imageUrl: '/static/locations/city.png',
     isCity: true,
   });
 
@@ -31,7 +31,7 @@ async function seed() {
     key: 'arena',
     name: 'Арена',
     description: 'Место, где бойцы сходятся в честной битве.',
-    imageUrl: '/static/locations/arena.jpg',
+    imageUrl: '/static/locations/arena.png',
     isBattleArena: true,
   });
 
@@ -39,7 +39,7 @@ async function seed() {
     key: 'shop',
     name: 'Торговый пост',
     description: 'Здесь можно приобрести всё необходимое.',
-    imageUrl: '/static/locations/shop.jpg',
+    imageUrl: '/static/locations/shop.png',
     isShop: true,
   });
 
@@ -47,21 +47,21 @@ async function seed() {
     key: 'forest',
     name: 'Лес',
     description: 'Тёмный и густой лес, полный загадок.',
-    imageUrl: '/static/locations/forest.jpg',
+    imageUrl: '/static/locations/forest.png',
   });
 
   const camp = repo.create({
     key: 'camp',
     name: 'Лагерь бандитов',
     description: 'Опасное место, где обитают разбойники.',
-    imageUrl: '/static/locations/camp.jpg',
+    imageUrl: '/static/locations/camp.png',
   });
 
   const castle = repo.create({
     key: 'castle',
     name: 'Замок',
     description: 'Старинный замок, превращённый в арену.',
-    imageUrl: '/static/locations/castle.jpg',
+    imageUrl: '/static/locations/castle.png',
     isBattleArena: true,
   });
 
