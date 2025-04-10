@@ -59,11 +59,17 @@ export class PlayerService {
   async findOne(id: string): Promise<Player> {
     const player = await this.playerRepository.findOne({
       where: { id },
-      relations: ['location'],
+      relations: {
+        location: {
+          availableDestinations: true,
+        },
+      },
     });
+
     if (!player) {
       throw new NotFoundException(`Player with ID ${id} not found`);
     }
+
     return player;
   }
 

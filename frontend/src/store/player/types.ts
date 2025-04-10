@@ -1,3 +1,5 @@
+import { Location } from "../location/types";
+
 export interface IPlayer {
   id: string;
   authId: string;
@@ -26,10 +28,7 @@ export interface IPlayer {
 
   attributePoints: number;
 
-  location?: {
-    id: string;
-    name: string;
-  };
+  location?: Location;
 
   currentBattleId: string | null;
   lastBattleEndedAt: string | null; // Date приходит в string

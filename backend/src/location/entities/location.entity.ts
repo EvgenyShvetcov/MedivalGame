@@ -32,7 +32,7 @@ export class Location {
   @Column({ default: false })
   isCity: boolean;
 
-  @ManyToMany(() => Location, { eager: true })
+  @ManyToMany(() => Location)
   @JoinTable()
   availableDestinations: Location[];
 }
