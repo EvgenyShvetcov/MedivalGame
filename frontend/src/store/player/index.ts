@@ -23,10 +23,54 @@ const playerSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
+
+    // Смена локации
+    changeLocationRequest(state, _action: PayloadAction<string>) {
+      state.isLoading = true;
+      state.error = null;
+    },
+    changeLocationSuccess(state, action: PayloadAction<IPlayer>) {
+      state.data = action.payload;
+      state.isLoading = false;
+    },
+    changeLocationFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
+
+    // Пинг
+    pingRequest() {},
+    pingSuccess() {},
+    pingFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+    },
+
+    // Онлайн статус
+    checkOnlineRequest() {},
+    checkOnlineSuccess(state, action: PayloadAction<boolean>) {
+      if (state.data) {
+        state.data.isOnline = action.payload;
+      }
+    },
+    checkOnlineFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+    },
   },
 });
 
-export const { fetchPlayerRequest, fetchPlayerSuccess, fetchPlayerFailure } =
-  playerSlice.actions;
+export const {
+  fetchPlayerRequest,
+  fetchPlayerSuccess,
+  fetchPlayerFailure,
+  changeLocationRequest,
+  changeLocationSuccess,
+  changeLocationFailure,
+  pingRequest,
+  pingSuccess,
+  pingFailure,
+  checkOnlineRequest,
+  checkOnlineSuccess,
+  checkOnlineFailure,
+} = playerSlice.actions;
 
 export default playerSlice.reducer;

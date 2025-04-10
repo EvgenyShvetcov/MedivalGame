@@ -114,12 +114,25 @@ export class PlayerService {
 
     if (!player) throw new NotFoundException('Игрок не найден');
 
-    const location = await this.locationRepository.findOneBy({
-      id: locationId,
+    const newLocation = await this.locationRepository.findOne({
+      where: { id: locationId },
     });
-    if (!location) throw new NotFoundException('Локация не найдена');
+    if (!newLocation) throw new NotFoundException('Локация не найдена');
 
-    player.location = location;
+    const currentLocation = await this.locationRepository.findOne({
+      where: { id: player.location?.id },
+      relations: ['availableDestinations'],
+    });
+
+    if (
+      !currentLocation?.availableDestinations.some(
+        (loc) => loc.id === locationId,
+      )
+    ) {
+      throw new Error('Нельзя перейти в эту локацию');
+    }
+
+    player.location = newLocation;
     return this.playerRepository.save(player);
   }
 }

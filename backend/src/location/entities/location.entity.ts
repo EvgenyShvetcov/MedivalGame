@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Location {
@@ -6,7 +12,10 @@ export class Location {
   id: string;
 
   @Column({ unique: true })
-  name: string;
+  key: string; // например: 'city', 'arena', 'shop'
+
+  @Column()
+  name: string; // отображаемое имя: 'Город'
 
   @Column({ nullable: true })
   description?: string;
@@ -19,4 +28,11 @@ export class Location {
 
   @Column({ default: false })
   isShop: boolean;
+
+  @Column({ default: false })
+  isCity: boolean;
+
+  @ManyToMany(() => Location, { eager: true })
+  @JoinTable()
+  availableDestinations: Location[];
 }

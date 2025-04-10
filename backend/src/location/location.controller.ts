@@ -89,4 +89,13 @@ export class LocationController {
   remove(@Param('id') id: string) {
     return this.locationService.remove(id);
   }
+
+  @Get(':id/destinations')
+  @ApiOperation({ summary: 'Получить доступные направления из локации' })
+  @ApiResponse({ status: 200, description: 'Список доступных направлений' })
+  @ApiResponse({ status: 404, description: 'Локация не найдена' })
+  @ApiParam({ name: 'id', description: 'ID локации' })
+  getAvailableDestinations(@Param('id') id: string) {
+    return this.locationService.getAvailableDestinations(id);
+  }
 }

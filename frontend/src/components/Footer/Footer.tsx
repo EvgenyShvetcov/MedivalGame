@@ -33,10 +33,12 @@ const Footer: FC = () => {
         <Button onClick={handleLogout}>Выйти из игры</Button>
       )}
 
-      <PlayerStats>
-        <span>🪙 {player?.gold ?? 0}</span>
-        <span>🧪 {player?.experience ?? 0}</span>
-      </PlayerStats>
+      {player && (
+        <PlayerStats>
+          <span>🪙 {player.gold}</span>
+          <span>🧪 {player.experience}</span>
+        </PlayerStats>
+      )}
     </FooterWrapper>
   );
 };

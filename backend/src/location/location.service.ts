@@ -49,4 +49,15 @@ export class LocationService {
   async findShops(): Promise<Location[]> {
     return this.locationRepo.find({ where: { isShop: true } });
   }
+
+  async getAvailableDestinations(id: string): Promise<Location[]> {
+    const location = await this.locationRepo.findOne({
+      where: { id },
+      relations: ['availableDestinations'],
+    });
+    if (!location) {
+      throw new NotFoundException(`Локация с id ${id} не найдена`);
+    }
+    return location.availableDestinations;
+  }
 }
