@@ -2,9 +2,9 @@ import { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPlayerRequest } from "@/store/player";
 import { RootState } from "@/store";
+import styled from "styled-components";
 import PageLoaderWrapper from "@/components/PageLoaderWrapper/PageLoaderWrapper";
 import LocationActions from "./LocationActions";
-import { BackgroundWrapper } from "./styled";
 
 const GamePage: FC = () => {
   const dispatch = useDispatch();
@@ -31,3 +31,15 @@ const GamePage: FC = () => {
 };
 
 export default GamePage;
+
+// ——— Стили ———
+
+const BackgroundWrapper = styled.div<{ imageUrl?: string }>`
+  min-height: 100vh;
+  background: ${({ imageUrl }) =>
+    imageUrl ? `url(${imageUrl}) center/cover no-repeat` : "#111"};
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  padding: 2rem;
+`;

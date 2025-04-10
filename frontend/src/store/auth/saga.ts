@@ -18,12 +18,11 @@ export function* loginSaga(
 ) {
   try {
     const authService = container.get<AuthService>(TYPES.AuthService);
-    const data: { accessToken: string } = yield authService.login(
+    const data: { access_token: string } = yield authService.login(
       action.payload
     );
-
-    yield put(loginSuccess({ token: data.accessToken }));
-    localStorage.setItem("token", data.accessToken);
+    yield put(loginSuccess({ token: data.access_token }));
+    localStorage.setItem("token", data.access_token);
   } catch (err: any) {
     const error =
       err instanceof AxiosError
@@ -43,12 +42,11 @@ export function* registerSaga(
 ) {
   try {
     const authService = container.get<AuthService>(TYPES.AuthService);
-    const data: { accessToken: string } = yield authService.register(
+    const data: { access_token: string } = yield authService.register(
       action.payload
     );
-
-    yield put(registerSuccess({ token: data.accessToken }));
-    localStorage.setItem("token", data.accessToken);
+    yield put(registerSuccess({ token: data.access_token }));
+    localStorage.setItem("token", data.access_token);
   } catch (err: any) {
     const error =
       err instanceof AxiosError

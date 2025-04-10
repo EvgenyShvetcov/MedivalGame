@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Player } from 'src/player/entities/player.entity';
+import { Location } from 'src/location/entities/location.entity';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +12,9 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(Player)
     private playerRepository: Repository<Player>,
+
+    @InjectRepository(Location)
+    private locationRepository: Repository<Location>,
   ) {}
 
   async register(username: string, password: string) {
@@ -23,10 +27,15 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const startLocation = await this.locationRepository.findOneBy({
+      key: 'city',
+    });
+
     const player = this.playerRepository.create({
-      authId: username, // или другой уникальный идентификатор
+      authId: username,
       username,
       password: hashedPassword,
+      ...(startLocation && { location: startLocation }),
     });
 
     await this.playerRepository.save(player);

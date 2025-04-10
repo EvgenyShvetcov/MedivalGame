@@ -1,9 +1,11 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { IAuthState } from "./types";
 
+const tokenFromStorage = localStorage.getItem("token");
+
 const initialState: IAuthState = {
   token: localStorage.getItem("token"),
-  isAuthenticated: false,
+  isAuthenticated: !!tokenFromStorage,
   isLoading: false,
   error: null,
 };
