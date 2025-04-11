@@ -69,8 +69,8 @@ export class BattleService {
         'playerOne',
         'playerTwo',
         'winner',
-        'attackerSelectedUnitId',
-        'defenderSelectedUnitId',
+        'attackerSelectedUnit',
+        'defenderSelectedUnit',
       ],
     });
   }
@@ -82,8 +82,8 @@ export class BattleService {
         'playerOne',
         'playerTwo',
         'winner',
-        'attackerSelectedUnitId',
-        'defenderSelectedUnitId',
+        'attackerSelectedUnit',
+        'defenderSelectedUnit',
       ],
     });
 
@@ -108,7 +108,7 @@ export class BattleService {
         'playerOne',
         'playerTwo',
         'attackerSelectedUnit',
-        'defenderSelectedUnitId',
+        'defenderSelectedUnit',
       ],
     });
 
