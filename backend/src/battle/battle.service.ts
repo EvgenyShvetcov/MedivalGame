@@ -203,7 +203,6 @@ export class BattleService {
     let attackerUnit = battle.attackerSelectedUnit;
     let defenderUnit = battle.defenderSelectedUnit;
 
-    // Если бот участвует и не выбрал юнита — выбираем случайного
     if (!attackerUnit && battle.playerOne.isBot) {
       const botUnits = await this.unitRepo.find({
         where: { playerId: battle.playerOne.id },
@@ -227,7 +226,6 @@ export class BattleService {
     const now = new Date();
     const winnerSide = this.compareUnits(attackerUnit.type, defenderUnit.type);
 
-    // Summary для фронта
     const summary = {
       attackerDodge: false,
       defenderDodge: false,
@@ -254,6 +252,9 @@ export class BattleService {
         if (crit) dmg *= 2;
         summary.attackerDamage = dmg;
         battle.playerTwo.health -= dmg;
+
+        // уменьшаем количество юнитов у defender'а
+        defenderUnit.amount = Math.max(0, defenderUnit.amount - 1);
       }
     }
 
@@ -274,6 +275,9 @@ export class BattleService {
         if (crit) dmg *= 2;
         summary.defenderDamage = dmg;
         battle.playerOne.health -= dmg;
+
+        // уменьшаем количество юнитов у attacker'а
+        attackerUnit.amount = Math.max(0, attackerUnit.amount - 1);
       }
     }
 
@@ -303,7 +307,13 @@ export class BattleService {
       winner.gold += 20;
 
       await this.playerRepo.save([winner, loser]);
+    } else {
+      // если бой продолжается — сохраняем здоровье
+      await this.playerRepo.save([battle.playerOne, battle.playerTwo]);
     }
+
+    // сохраняем уменьшенные количества юнитов
+    await this.unitRepo.save([attackerUnit, defenderUnit]);
 
     await this.battleLogRepo.save({
       battle,
@@ -327,7 +337,7 @@ export class BattleService {
     battle.turnStartedAt = now;
 
     const saved = await this.battleRepo.save(battle);
-    const fullBattle = await this.findOne(saved.id); // ✅ подгружаем юнитов и всё остальное
+    const fullBattle = await this.findOne(saved.id);
 
     return {
       battle: fullBattle,
