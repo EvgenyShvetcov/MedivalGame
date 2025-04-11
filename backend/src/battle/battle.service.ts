@@ -80,7 +80,9 @@ export class BattleService {
       where: { id },
       relations: [
         'playerOne',
+        'playerOne.units', // ⬅️ обязательно!
         'playerTwo',
+        'playerTwo.units', // ⬅️ обязательно!
         'winner',
         'attackerSelectedUnit',
         'defenderSelectedUnit',
@@ -422,7 +424,7 @@ export class BattleService {
 
     if (!player.currentBattleId) return null;
 
-    return this.findOne(player.currentBattleId);
+    return this.findOne(player.currentBattleId); // уже с units
   }
 
   async leaveBattle(playerId: string): Promise<void> {
