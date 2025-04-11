@@ -326,10 +326,11 @@ export class BattleService {
     battle.currentTurn += 1;
     battle.turnStartedAt = now;
 
-    const updatedBattle = await this.battleRepo.save(battle);
+    const saved = await this.battleRepo.save(battle);
+    const fullBattle = await this.findOne(saved.id); // ✅ подгружаем юнитов и всё остальное
 
     return {
-      battle: updatedBattle,
+      battle: fullBattle,
       summary,
     };
   }

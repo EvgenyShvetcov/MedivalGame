@@ -147,12 +147,12 @@ function* getBattleSaga(action: ReturnType<typeof getBattleRequest>) {
 function* processTurnSaga(action: ReturnType<typeof processTurnRequest>) {
   try {
     const service = container.get<BattleService>(TYPES.BattleService);
-    const data: IBattle = yield* apiSaga(
-      service,
-      "processTurn",
+    const result: { battle: IBattle } = yield call(
+      [service, service.processTurn],
       action.payload
     );
-    yield put(processTurnSuccess(data));
+    yield put(processTurnSuccess(result.battle));
+    yield put(loadLogsRequest(result.battle.id)); // ⬅️
   } catch (err) {
     yield put(processTurnFailure("Ошибка при обработке хода"));
   }

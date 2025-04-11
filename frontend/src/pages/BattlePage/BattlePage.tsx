@@ -55,7 +55,7 @@ const BattlePage: FC = () => {
     battle?.isFinished,
   ]);
 
-  if (!battle || !battle.playerOne || !playerId || !battle.playerTwo)
+  if (!battle?.playerOne || !battle?.playerTwo || !playerId)
     return <p>Загрузка боя...</p>;
 
   if (battle.isFinished) {
@@ -113,7 +113,7 @@ const BattlePage: FC = () => {
         ⬅️ Выйти из боя
       </Button>
 
-      <BattleLog logs={battle.logs ?? []} />
+      <BattleLog logs={logs} />
     </div>
   );
 };
