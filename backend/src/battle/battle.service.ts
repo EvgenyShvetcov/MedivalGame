@@ -198,8 +198,25 @@ export class BattleService {
     if (!battle) throw new NotFoundException('Битва не найдена');
     if (battle.isFinished) throw new BadRequestException('Битва уже завершена');
 
-    const attackerUnit = battle.attackerSelectedUnit;
-    const defenderUnit = battle.defenderSelectedUnit;
+    let attackerUnit = battle.attackerSelectedUnit;
+    let defenderUnit = battle.defenderSelectedUnit;
+
+    // Если бот участвует и не выбрал юнита — выбираем случайного
+    if (!attackerUnit && battle.playerOne.isBot) {
+      const botUnits = await this.unitRepo.find({
+        where: { playerId: battle.playerOne.id },
+      });
+      attackerUnit = botUnits[Math.floor(Math.random() * botUnits.length)];
+      battle.attackerSelectedUnit = attackerUnit;
+    }
+
+    if (!defenderUnit && battle.playerTwo.isBot) {
+      const botUnits = await this.unitRepo.find({
+        where: { playerId: battle.playerTwo.id },
+      });
+      defenderUnit = botUnits[Math.floor(Math.random() * botUnits.length)];
+      battle.defenderSelectedUnit = defenderUnit;
+    }
 
     if (!attackerUnit || !defenderUnit) {
       throw new BadRequestException('Оба игрока ещё не выбрали юниты');
@@ -350,6 +367,7 @@ export class BattleService {
     const player = await this.playerRepo.findOneByOrFail({ id: playerId });
 
     const bot = this.playerRepo.create({
+      password: 'bot-password',
       username: 'Бот',
       isBot: true,
       level: player.level, // или ниже
