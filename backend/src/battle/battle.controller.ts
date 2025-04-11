@@ -6,6 +6,8 @@ import {
   Delete,
   Body,
   UseGuards,
+  Patch,
+  Req,
 } from '@nestjs/common';
 import { BattleService } from './battle.service';
 import { MatchmakingService } from './matchmaking.service';
@@ -22,6 +24,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentPlayer } from 'src/auth/decorators/current-player.decorator';
 import { ChooseUnitDto } from './dto/choose-unit.dto';
 import { Battle } from './entities/battle.entity';
+import { RequestWithUser } from 'src/auth/types';
 
 @ApiTags('Battle')
 @ApiBearerAuth()
@@ -116,5 +119,13 @@ export class BattleController {
   @ApiOperation({ summary: 'Начать бой против бота' })
   async startBotBattle(@CurrentPlayer() player: { userId: string }) {
     return this.battleService.createBotBattle(player.userId);
+  }
+
+  @Patch('leave')
+  @UseGuards(JwtAuthGuard)
+  async leaveBattle(@Req() req: RequestWithUser) {
+    const playerId = req.user.id;
+    await this.battleService.leaveBattle(playerId);
+    return { message: 'Вы покинули бой' };
   }
 }

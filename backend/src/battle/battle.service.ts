@@ -377,4 +377,13 @@ export class BattleService {
 
     return this.create({ playerTwoId: savedBot.id }, player.id);
   }
+
+  async leaveBattle(playerId: string): Promise<void> {
+    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
+
+    if (player.currentBattleId) {
+      player.currentBattleId = null;
+      await this.playerRepo.save(player);
+    }
+  }
 }

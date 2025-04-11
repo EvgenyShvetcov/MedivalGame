@@ -15,6 +15,17 @@ import {
   stopSearch,
   startSearch,
   cancelSearchRequest,
+  getBattleSuccess,
+  getBattleRequest,
+  processTurnFailure,
+  processTurnSuccess,
+  processTurnRequest,
+  loadLogsFailure,
+  loadLogsSuccess,
+  loadLogsRequest,
+  leaveBattleSuccess,
+  leaveBattleFailure,
+  leaveBattleRequest,
 } from ".";
 import { container } from "@/inversify.config";
 import { TYPES } from "@/services/types";
@@ -109,10 +120,58 @@ function* cancelSearchSaga() {
   }
 }
 
+function* getBattleSaga(action: ReturnType<typeof getBattleRequest>) {
+  try {
+    const service = container.get<BattleService>(TYPES.BattleService);
+    const data: IBattle = yield* apiSaga(service, "getById", action.payload);
+    yield put(getBattleSuccess(data));
+  } catch (err) {
+    // Можно обработку ошибки, если хочешь
+  }
+}
+
+function* processTurnSaga(action: ReturnType<typeof processTurnRequest>) {
+  try {
+    const service = container.get<BattleService>(TYPES.BattleService);
+    const data: IBattle = yield* apiSaga(
+      service,
+      "processTurn",
+      action.payload
+    );
+    yield put(processTurnSuccess(data));
+  } catch (err) {
+    yield put(processTurnFailure("Ошибка при обработке хода"));
+  }
+}
+
+function* loadLogsSaga(action: ReturnType<typeof loadLogsRequest>) {
+  try {
+    const service = container.get<BattleService>(TYPES.BattleService);
+    const data: any[] = yield call([service, service.getLogs], action.payload);
+    yield put(loadLogsSuccess(data));
+  } catch {
+    yield put(loadLogsFailure());
+  }
+}
+
+function* leaveBattleSaga() {
+  try {
+    const service = container.get<BattleService>(TYPES.BattleService);
+    yield call([service, service.leave]);
+    yield put(leaveBattleSuccess());
+    navigateTo("/game");
+  } catch {
+    yield put(leaveBattleFailure("Не удалось выйти из боя"));
+  }
+}
+
 export function* battleSaga() {
   yield takeLatest(startBattleRequest.type, startBattleSaga);
   yield takeLatest(makeTurnRequest.type, makeTurnSaga);
   yield takeLatest(startBotBattleRequest.type, startBotBattleSaga);
   yield takeLatest(searchBattleRequest.type, searchBattleSaga);
   yield takeLatest(cancelSearchRequest.type, cancelSearchSaga);
+  yield takeLatest(getBattleRequest.type, getBattleSaga);
+  yield takeLatest(processTurnRequest.type, processTurnSaga);
+  yield takeLatest(leaveBattleRequest.type, leaveBattleSaga);
 }

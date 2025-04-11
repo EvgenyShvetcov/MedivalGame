@@ -11,7 +11,7 @@ export interface IBattle {
   turnDuration: number;
   attackerSelectedUnit: IUnit | null;
   defenderSelectedUnit: IUnit | null;
-  logs?: any[]; // пока можно оставить
+  logs?: IBattleLog[];
 }
 
 export type UnitType = "INFANTRY" | "ARCHER" | "CAVALRY";
@@ -36,4 +36,21 @@ export interface IBattleState {
   isLoading: boolean;
   error: string | null;
   isSearching: boolean;
+  logs: IBattleLog[]; // вот это нужно
+}
+
+export interface IBattleLog {
+  id: string;
+  turnNumber: number;
+  damageDealtToDefender: number;
+  damageDealtToAttacker: number;
+  attackerCrit: boolean;
+  defenderCrit: boolean;
+  attackerDodged: boolean;
+  defenderDodged: boolean;
+  createdAt: string;
+  attacker: { username: string };
+  defender: { username: string };
+  attackerUnit: { type: UnitType };
+  defenderUnit: { type: UnitType };
 }

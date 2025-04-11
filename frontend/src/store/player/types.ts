@@ -1,3 +1,4 @@
+import { IUnit } from "../battle/types";
 import { Location } from "../location/types";
 
 export interface IPlayer {
@@ -27,7 +28,7 @@ export interface IPlayer {
   cavalryDefense: number;
 
   attributePoints: number;
-
+  units?: IUnit[];
   location?: Location;
 
   currentBattleId: string | null;

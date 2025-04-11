@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IBattleState, IBattle } from "./types";
+import { IBattleState, IBattle, IBattleLog } from "./types";
 
 const initialState: IBattleState = {
   current: null,
   isLoading: false,
   error: null,
   isSearching: false,
+  logs: [],
 };
 
 const battleSlice = createSlice({
@@ -66,12 +67,55 @@ const battleSlice = createSlice({
     stopSearch(state) {
       state.isSearching = false;
     },
+    getBattleRequest(state, _action: PayloadAction<string>) {
+      state.isLoading = true;
+    },
+    getBattleSuccess(state, action: PayloadAction<IBattle>) {
+      state.current = action.payload;
+      state.isLoading = false;
+    },
+    processTurnRequest(state, _action: PayloadAction<string>) {
+      state.isLoading = true;
+    },
+    processTurnSuccess(state, action: PayloadAction<IBattle>) {
+      state.current = action.payload;
+      state.isLoading = false;
+    },
+    processTurnFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
+    loadLogsRequest(state, _action: PayloadAction<string>) {
+      state.isLoading = true;
+    },
+    loadLogsSuccess(state, action: PayloadAction<IBattleLog[]>) {
+      state.logs = action.payload;
+      state.isLoading = false;
+    },
+    loadLogsFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
+    leaveBattleRequest(state) {
+      state.isLoading = true;
+    },
+    leaveBattleSuccess(state) {
+      state.current = null;
+      state.isLoading = false;
+    },
+    leaveBattleFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
 
     cancelSearchRequest() {},
   },
 });
 
 export const {
+  leaveBattleFailure,
+  leaveBattleSuccess,
+  leaveBattleRequest,
   startBattleRequest,
   startBattleSuccess,
   startBattleFailure,
@@ -87,6 +131,14 @@ export const {
   cancelSearchRequest,
   stopSearch,
   startSearch,
+  getBattleRequest,
+  getBattleSuccess,
+  processTurnRequest,
+  processTurnSuccess,
+  processTurnFailure,
+  loadLogsRequest,
+  loadLogsSuccess,
+  loadLogsFailure,
 } = battleSlice.actions;
 
 export default battleSlice.reducer;

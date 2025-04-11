@@ -32,4 +32,24 @@ export class BattleService {
     const response = await api.post("/battle/cancel-search");
     return response.data;
   }
+
+  async getById(id: string) {
+    const response = await api.get(`/battle/${id}`);
+    return response.data;
+  }
+
+  async processTurn(battleId: string) {
+    const response = await api.post(`/battle/${battleId}/process-turn`);
+    return response.data;
+  }
+
+  async getLogs(battleId: string) {
+    const response = await api.get(`/battle/${battleId}/logs`);
+    return response.data;
+  }
+
+  async leave() {
+    const response = await api.get(`/battle/leave`);
+    return response.data;
+  }
 }
