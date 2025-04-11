@@ -393,23 +393,27 @@ export class BattleService {
 
     const savedBot = await this.playerRepo.save(bot);
 
+    // 🧠 Генерация юнитов для бота
+    const unitAmount = 15;
+    const baseLevel = 1;
+    const baseDamageByType: Record<UnitType, number> = {
+      [UnitType.INFANTRY]: 10,
+      [UnitType.ARCHER]: 12,
+      [UnitType.CAVALRY]: 15,
+    };
+
+    const botUnits = Object.values(UnitType).map((type) =>
+      this.unitRepo.create({
+        owner: savedBot,
+        type,
+        level: baseLevel,
+        amount: unitAmount,
+        baseDamage: baseDamageByType[type],
+      }),
+    );
+
+    await this.unitRepo.save(botUnits);
+
     return this.create({ playerTwoId: savedBot.id }, player.id);
-  }
-
-  async leaveBattle(playerId: string): Promise<void> {
-    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
-
-    if (player.currentBattleId) {
-      player.currentBattleId = null;
-      await this.playerRepo.save(player);
-    }
-  }
-
-  async getCurrentBattle(playerId: string): Promise<Battle | null> {
-    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
-
-    if (!player.currentBattleId) return null;
-
-    return this.findOne(player.currentBattleId);
   }
 }

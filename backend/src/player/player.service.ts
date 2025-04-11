@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { Location } from 'src/location/entities/location.entity';
+import { Unit } from 'src/unit/entities/unit.entity';
+import { UnitType } from 'src/unit/unit-type.enum';
 
 @Injectable()
 export class PlayerService {
@@ -13,10 +15,33 @@ export class PlayerService {
 
     @InjectRepository(Location)
     private locationRepository: Repository<Location>,
+
+    @InjectRepository(Unit)
+    private unitRepository: Repository<Unit>,
   ) {}
 
   create(createPlayerDto: CreatePlayerDto): Promise<Player> {
     const player = this.playerRepository.create(createPlayerDto);
+    const baseUnitLevel = 1;
+    const unitAmount = 15;
+
+    const baseDamageByType: Record<UnitType, number> = {
+      [UnitType.INFANTRY]: 10,
+      [UnitType.ARCHER]: 12,
+      [UnitType.CAVALRY]: 15,
+    };
+
+    const units: Unit[] = Object.values(UnitType).map((type) =>
+      this.unitRepository.create({
+        owner: player,
+        type,
+        level: baseUnitLevel,
+        amount: unitAmount,
+        baseDamage: baseDamageByType[type],
+      }),
+    );
+
+    this.unitRepository.save(units);
     return this.playerRepository.save(player);
   }
 
