@@ -394,7 +394,7 @@ export class BattleService {
     const savedBot = await this.playerRepo.save(bot);
 
     // 🧠 Генерация юнитов для бота
-    const unitAmount = 15;
+    const unitAmount = 150;
     const baseLevel = 1;
     const baseDamageByType: Record<UnitType, number> = {
       [UnitType.INFANTRY]: 10,
@@ -415,5 +415,41 @@ export class BattleService {
     await this.unitRepo.save(botUnits);
 
     return this.create({ playerTwoId: savedBot.id }, player.id);
+  }
+
+  async getCurrentBattle(playerId: string): Promise<Battle | null> {
+    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
+
+    if (!player.currentBattleId) return null;
+
+    return this.findOne(player.currentBattleId);
+  }
+
+  async leaveBattle(playerId: string): Promise<void> {
+    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
+
+    if (!player.currentBattleId) return;
+
+    const battle = await this.battleRepo.findOne({
+      where: { id: player.currentBattleId },
+      relations: ['playerOne', 'playerTwo'],
+    });
+
+    if (!battle) return;
+
+    const opponent =
+      battle.playerOne.id === player.id ? battle.playerTwo : battle.playerOne;
+
+    // Если соперник — бот, удаляем его и его юниты
+    if (opponent.isBot) {
+      await this.unitRepo.delete({ owner: { id: opponent.id } });
+      await this.playerRepo.delete(opponent.id);
+    }
+
+    player.currentBattleId = null;
+    await this.playerRepo.save(player);
+
+    // Можно также удалить саму битву, если нужно
+    await this.battleRepo.delete(battle.id);
   }
 }
