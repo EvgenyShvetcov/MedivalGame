@@ -107,12 +107,26 @@ const battleSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
+    getCurrentBattleRequest(state) {
+      state.isLoading = true;
+    },
+    getCurrentBattleSuccess(state, action: PayloadAction<IBattle>) {
+      state.current = action.payload;
+      state.isLoading = false;
+    },
+    getCurrentBattleFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
 
     cancelSearchRequest() {},
   },
 });
 
 export const {
+  getCurrentBattleRequest,
+  getCurrentBattleSuccess,
+  getCurrentBattleFailure,
   leaveBattleFailure,
   leaveBattleSuccess,
   leaveBattleRequest,

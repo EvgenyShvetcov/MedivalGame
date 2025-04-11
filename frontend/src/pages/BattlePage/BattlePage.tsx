@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import {
   getBattleRequest,
+  getCurrentBattleRequest,
   makeTurnRequest,
   processTurnRequest,
 } from "@/store/battle";
@@ -26,11 +27,21 @@ const BattlePage: FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (id) dispatch(getBattleRequest(id));
+      if (id) {
+        dispatch(getBattleRequest(id));
+      } else {
+        dispatch(getCurrentBattleRequest());
+      }
     }, 5000);
 
     return () => clearInterval(interval);
   }, [id]);
+
+  useEffect(() => {
+    if (!id && battle?.id) {
+      navigate(`/battle/${battle.id}`, { replace: true });
+    }
+  }, [battle?.id, id]);
 
   useEffect(() => {
     if (

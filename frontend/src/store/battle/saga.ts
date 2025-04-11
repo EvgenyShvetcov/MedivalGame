@@ -26,6 +26,9 @@ import {
   leaveBattleSuccess,
   leaveBattleFailure,
   leaveBattleRequest,
+  getCurrentBattleFailure,
+  getCurrentBattleSuccess,
+  getCurrentBattleRequest,
 } from ".";
 import { container } from "@/inversify.config";
 import { TYPES } from "@/services/types";
@@ -165,6 +168,18 @@ function* leaveBattleSaga() {
   }
 }
 
+function* getCurrentBattleSaga() {
+  try {
+    const service = container.get<BattleService>(TYPES.BattleService);
+    const data: IBattle = yield call([service, service.getCurrentBattle]);
+    if (data && data.id) {
+      yield put(getCurrentBattleSuccess(data));
+    }
+  } catch {
+    yield put(getCurrentBattleFailure("Битва не найдена"));
+  }
+}
+
 export function* battleSaga() {
   yield takeLatest(startBattleRequest.type, startBattleSaga);
   yield takeLatest(makeTurnRequest.type, makeTurnSaga);
@@ -174,4 +189,5 @@ export function* battleSaga() {
   yield takeLatest(getBattleRequest.type, getBattleSaga);
   yield takeLatest(processTurnRequest.type, processTurnSaga);
   yield takeLatest(leaveBattleRequest.type, leaveBattleSaga);
+  yield takeLatest(getCurrentBattleRequest.type, getCurrentBattleSaga);
 }

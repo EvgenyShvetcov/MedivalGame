@@ -54,6 +54,12 @@ export class BattleController {
     return this.battleService.findAll();
   }
 
+  @Get('current')
+  @ApiOperation({ summary: 'Текущая битва игрока' })
+  async getCurrentBattle(@CurrentPlayer() player: { userId: string }) {
+    return this.battleService.getCurrentBattle(player.userId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Получение битвы по ID' })
   @ApiParam({ name: 'id' })

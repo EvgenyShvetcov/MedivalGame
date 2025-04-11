@@ -386,4 +386,12 @@ export class BattleService {
       await this.playerRepo.save(player);
     }
   }
+
+  async getCurrentBattle(playerId: string): Promise<Battle | null> {
+    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
+
+    if (!player.currentBattleId) return null;
+
+    return this.findOne(player.currentBattleId);
+  }
 }
