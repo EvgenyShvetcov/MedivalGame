@@ -5,8 +5,10 @@ import { spawn } from "redux-saga/effects";
 import { authSaga } from "./auth/saga";
 import player from "./player";
 import location from "./location";
+import battle from "./battle";
 import { playerSaga } from "./player/saga";
 import { locationSaga } from "./location/saga";
+import { battleSaga } from "./battle/saga";
 // import modal, { modalSaga } from "./modal";
 // тут будут остальные слайсы
 
@@ -16,6 +18,7 @@ const rootReducer = combineReducers({
   auth,
   player,
   location,
+  battle,
   // modal,
   // + auth, player, и т.д.
 });
@@ -30,6 +33,7 @@ sagaMiddleware.run(function* rootSaga() {
   yield spawn(authSaga);
   yield spawn(playerSaga);
   yield spawn(locationSaga);
+  yield spawn(battleSaga);
   // yield modalSaga();
   // + другие саги
 });

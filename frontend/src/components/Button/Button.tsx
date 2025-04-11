@@ -5,6 +5,10 @@ type Props<T extends ElementType> = {
   as?: T;
 } & ComponentPropsWithoutRef<T>;
 
-export const Button = <T extends ElementType = "button">(props: Props<T>) => {
-  return <StyledButton {...props} />;
+export const Button = <T extends ElementType = "button">({
+  as,
+  variant = "default",
+  ...props
+}: Props<T> & { variant?: "default" | "battle" | "location" }) => {
+  return <StyledButton as={as} $variant={variant} {...props} />;
 };

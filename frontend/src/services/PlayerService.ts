@@ -13,8 +13,8 @@ export class PlayerService implements IPlayerService {
     return response.data;
   }
 
-  async changeLocation(locationId: string): Promise<IPlayer> {
-    const res = await api.post("/player/change-location", { locationId });
+  async changeLocation(locationKey: string): Promise<IPlayer> {
+    const res = await api.post("/player/change-location", { locationKey });
     return res.data;
   }
 
@@ -36,5 +36,17 @@ export class PlayerService implements IPlayerService {
   async checkOnline(): Promise<{ online: boolean }> {
     const res = await api.get("/player/online");
     return res.data;
+  }
+
+  async assignAttributes(payload: {
+    strength?: number;
+    agility?: number;
+    defense?: number;
+  }): Promise<IPlayer> {
+    const response = await api.post<IPlayer>(
+      "/player-attributes/assign",
+      payload
+    );
+    return response.data;
   }
 }

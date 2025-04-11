@@ -15,22 +15,32 @@ const flicker = keyframes`
   }
 `;
 
-export const StyledButton = styled.button`
+// styled.ts
+export const StyledButton = styled.button<{ $variant?: string }>`
   all: unset;
   display: inline-block;
-
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: bold;
-  color: #d6d6d6;
 
-  background: linear-gradient(to bottom, #1e1e1e, #0f0f0f);
+  color: ${({ $variant }) =>
+    $variant === "battle"
+      ? "#ffcccc"
+      : $variant === "location"
+      ? "#d0e0ff"
+      : "#d6d6d6"};
+
+  background: ${({ $variant }) =>
+    $variant === "battle"
+      ? "linear-gradient(to bottom, #4e0000, #220000)"
+      : $variant === "location"
+      ? "linear-gradient(to bottom, #001f3f, #001020)"
+      : "linear-gradient(to bottom, #1e1e1e, #0f0f0f)"};
+
   border: 2px solid #444;
   border-radius: 6px;
-
   font-family: "MedievalSharp", serif;
   text-shadow: 1px 1px 2px #000;
-
   cursor: pointer;
   text-align: center;
   text-decoration: none;
@@ -39,7 +49,6 @@ export const StyledButton = styled.button`
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    background: linear-gradient(to bottom, #2a2a2a, #151515);
     border-color: #666;
     animation: ${flicker} 1.2s ease-in-out infinite;
   }

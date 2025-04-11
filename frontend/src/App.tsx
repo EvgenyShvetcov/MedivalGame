@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "@/store";
 import { ROUTES } from "@/routes";
@@ -12,8 +12,15 @@ import BattlePage from "@/pages/BattlePage/BattlePage";
 import WithTopBarLayout from "@/layouts/WithTopBarLayout";
 import GameLayout from "@/layouts/GameLayout";
 import PrivateRoute from "@/components/PrivateRoute/PrivateRoute";
+import { setNavigate } from "./utils/navigation";
+import { useEffect } from "react";
+const App = () => {
+  const navigate = useNavigate();
 
-function App() {
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
+
   return (
     <Provider store={store}>
       <BrowserRouter>
@@ -40,6 +47,6 @@ function App() {
       </BrowserRouter>
     </Provider>
   );
-}
+};
 
 export default App;

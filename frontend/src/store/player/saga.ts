@@ -12,6 +12,9 @@ import {
   checkOnlineRequest,
   checkOnlineSuccess,
   checkOnlineFailure,
+  assignAttributesFailure,
+  assignAttributesSuccess,
+  assignAttributesRequest,
 } from ".";
 import { TYPES } from "@/services/types";
 import { container } from "@/inversify.config";
@@ -30,16 +33,43 @@ function* fetchPlayerSaga() {
   }
 }
 
+function* assignAttributesSaga(
+  action: ReturnType<typeof assignAttributesRequest>
+) {
+  try {
+    const playerService = container.get<PlayerService>(TYPES.PlayerService);
+
+    // Отправляем изменения
+    yield* apiSaga(playerService, "assignAttributes", action.payload);
+
+    // Получаем обновлённого игрока
+    const updatedPlayer: IPlayer = yield* apiSaga(
+      playerService,
+      "getCurrentPlayer"
+    );
+
+    yield put(assignAttributesSuccess(updatedPlayer));
+  } catch (err) {
+    yield put(assignAttributesFailure("Ошибка распределения характеристик"));
+  }
+}
+
 // 🔹 Сменить локацию
 function* changeLocationSaga(action: ReturnType<typeof changeLocationRequest>) {
   try {
     const playerService = container.get<PlayerService>(TYPES.PlayerService);
-    const data: IPlayer = yield* apiSaga(
+
+    // сначала меняем локацию
+    yield* apiSaga(playerService, "changeLocation", action.payload);
+
+    // затем запрашиваем обновлённые данные игрока
+    const updatedPlayer: IPlayer = yield* apiSaga(
       playerService,
-      "changeLocation",
-      action.payload
+      "getCurrentPlayer"
     );
-    yield put(changeLocationSuccess(data));
+
+    // и сохраняем в стор
+    yield put(changeLocationSuccess(updatedPlayer));
   } catch (err) {
     yield put(changeLocationFailure("Не удалось сменить локацию"));
   }
@@ -73,6 +103,7 @@ function* checkOnlineSaga() {
 export function* playerSaga() {
   yield takeLatest(fetchPlayerRequest.type, fetchPlayerSaga);
   yield takeLatest(changeLocationRequest.type, changeLocationSaga);
+  yield takeLatest(assignAttributesRequest.type, assignAttributesSaga);
   yield takeLatest(pingRequest.type, pingSaga);
   yield takeLatest(checkOnlineRequest.type, checkOnlineSaga);
 }

@@ -1,5 +1,6 @@
 import { FC, ReactNode } from "react";
 import styled from "styled-components";
+import Spinner from "../Spinner/Spinner";
 
 interface Props {
   isLoading: boolean;
@@ -8,18 +9,12 @@ interface Props {
 }
 
 const PageLoaderWrapper: FC<Props> = ({ isLoading, error, children }) => {
-  if (isLoading) return <Status>Загрузка...</Status>;
+  if (isLoading) return <Spinner />;
   if (error) return <ErrorText>{error}</ErrorText>;
   return <>{children}</>;
 };
 
 export default PageLoaderWrapper;
-
-const Status = styled.div`
-  margin-top: 1rem;
-  font-size: 1rem;
-  color: #ccc;
-`;
 
 const ErrorText = styled.div`
   color: red;

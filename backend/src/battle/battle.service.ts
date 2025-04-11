@@ -345,4 +345,36 @@ export class BattleService {
 
     return 'defender';
   }
+
+  async createBotBattle(playerId: string): Promise<Battle> {
+    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
+
+    const bot = this.playerRepo.create({
+      username: 'Бот',
+      isBot: true,
+      level: player.level, // или ниже
+      experience: 0,
+      gold: 0,
+      health: 100,
+      strength: 5,
+      agility: 5,
+      defense: 5,
+      archerAttack: 5,
+      archerDefense: 5,
+      infantryAttack: 5,
+      infantryDefense: 5,
+      cavalryAttack: 5,
+      cavalryDefense: 5,
+      infantryCount: 3,
+      archerCount: 3,
+      cavalryCount: 3,
+      unitLevel: 1,
+      attributePoints: 0,
+      authId: `${player.id}-bot-${Date.now()}`, // фейковый, уникальный
+    });
+
+    const savedBot = await this.playerRepo.save(bot);
+
+    return this.create({ playerTwoId: savedBot.id }, player.id);
+  }
 }

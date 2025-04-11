@@ -37,6 +37,19 @@ const playerSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
+    // Распределение очков
+    assignAttributesRequest(state, _action: PayloadAction<Partial<IPlayer>>) {
+      state.isLoading = true;
+      state.error = null;
+    },
+    assignAttributesSuccess(state, action: PayloadAction<IPlayer>) {
+      state.data = action.payload;
+      state.isLoading = false;
+    },
+    assignAttributesFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
 
     // Пинг
     pingRequest() {},
@@ -71,6 +84,9 @@ export const {
   checkOnlineRequest,
   checkOnlineSuccess,
   checkOnlineFailure,
+  assignAttributesRequest,
+  assignAttributesSuccess,
+  assignAttributesFailure,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BattleService } from './battle.service';
+import { MatchmakingService } from './matchmaking.service';
 import {
   ApiTags,
   ApiOperation,
@@ -27,7 +28,10 @@ import { Battle } from './entities/battle.entity';
 @UseGuards(JwtAuthGuard)
 @Controller('battle')
 export class BattleController {
-  constructor(private readonly battleService: BattleService) {}
+  constructor(
+    private readonly battleService: BattleService,
+    private readonly matchmakingService: MatchmakingService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Создание новой битвы' })
@@ -92,5 +96,25 @@ export class BattleController {
   @ApiResponse({ status: 200, description: 'Список логов' })
   async getBattleLogs(@Param('id') battleId: string) {
     return this.battleService.getLogsForBattle(battleId);
+  }
+
+  @Post('search')
+  @ApiOperation({ summary: 'Встать в очередь поиска битвы' })
+  async searchForBattle(@CurrentPlayer() player: { userId: string }) {
+    const foundBattle = await this.matchmakingService.joinQueue(player.userId);
+    return foundBattle || { message: 'Поиск запущен' };
+  }
+
+  @Post('cancel-search')
+  @ApiOperation({ summary: 'Отменить поиск битвы' })
+  async cancelSearch(@CurrentPlayer() player: { userId: string }) {
+    this.matchmakingService.leaveQueue(player.userId);
+    return { message: 'Поиск отменён' };
+  }
+
+  @Post('with-bot')
+  @ApiOperation({ summary: 'Начать бой против бота' })
+  async startBotBattle(@CurrentPlayer() player: { userId: string }) {
+    return this.battleService.createBotBattle(player.userId);
   }
 }
