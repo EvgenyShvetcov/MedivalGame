@@ -203,6 +203,7 @@ export class BattleService {
     let attackerUnit = battle.attackerSelectedUnit;
     let defenderUnit = battle.defenderSelectedUnit;
 
+    // Бот выбирает случайного юнита, если не выбрал
     if (!attackerUnit && battle.playerOne.isBot) {
       const botUnits = await this.unitRepo.find({
         where: { playerId: battle.playerOne.id },
@@ -222,6 +223,10 @@ export class BattleService {
     if (!attackerUnit || !defenderUnit) {
       throw new BadRequestException('Оба игрока ещё не выбрали юниты');
     }
+
+    // 🧠 Подгружаем полные юниты, чтобы точно были amount и owner
+    attackerUnit = await this.unitRepo.findOneByOrFail({ id: attackerUnit.id });
+    defenderUnit = await this.unitRepo.findOneByOrFail({ id: defenderUnit.id });
 
     const now = new Date();
     const winnerSide = this.compareUnits(attackerUnit.type, defenderUnit.type);
@@ -308,11 +313,9 @@ export class BattleService {
 
       await this.playerRepo.save([winner, loser]);
     } else {
-      // если бой продолжается — сохраняем здоровье
       await this.playerRepo.save([battle.playerOne, battle.playerTwo]);
     }
 
-    // сохраняем уменьшенные количества юнитов
     await this.unitRepo.save([attackerUnit, defenderUnit]);
 
     await this.battleLogRepo.save({
