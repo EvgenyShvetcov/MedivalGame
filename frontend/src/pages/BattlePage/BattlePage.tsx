@@ -26,15 +26,11 @@ const BattlePage: FC = () => {
   const logs = useSelector((state: RootState) => state.battle.logs);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (id) {
-        dispatch(getBattleRequest(id));
-      } else {
-        dispatch(getCurrentBattleRequest());
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
+    if (id) {
+      dispatch(getBattleRequest(id)); // ✅ при загрузке страницы
+    } else {
+      dispatch(getCurrentBattleRequest());
+    }
   }, [id]);
 
   useEffect(() => {
@@ -59,7 +55,8 @@ const BattlePage: FC = () => {
     battle?.isFinished,
   ]);
 
-  if (!battle || !playerId) return <p>Загрузка боя...</p>;
+  if (!battle || !battle.playerOne || !playerId || !battle.playerTwo)
+    return <p>Загрузка боя...</p>;
 
   if (battle.isFinished) {
     return <VictoryScreen winner={battle.winner} logs={logs} />;
@@ -77,9 +74,6 @@ const BattlePage: FC = () => {
 
   const handleChoose = (unitId: string) => {
     dispatch(makeTurnRequest({ unitId }));
-    if (opponent.isBot) {
-      dispatch(processTurnRequest(battle.id));
-    }
   };
 
   return (

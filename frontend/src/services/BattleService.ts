@@ -8,8 +8,10 @@ export class BattleService {
     return response.data;
   }
 
-  async makeTurn(unitId: string) {
-    const response = await api.post("/battle/turn", { unitId });
+  async makeTurn(battleId: string, unitId: string) {
+    const response = await api.post(`/battle/${battleId}/choose-unit`, {
+      unitId,
+    });
     return response.data;
   }
 
@@ -49,7 +51,7 @@ export class BattleService {
   }
 
   async leave() {
-    const response = await api.get(`/battle/leave`);
+    const response = await api.patch(`/battle/leave`);
     return response.data;
   }
 }

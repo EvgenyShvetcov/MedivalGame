@@ -137,7 +137,7 @@ export class BattleService {
     battleId: string,
     playerId: string,
     unitId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<Battle> {
     const battle = await this.battleRepo.findOne({
       where: { id: battleId },
       relations: [
@@ -153,7 +153,6 @@ export class BattleService {
     const unit = await this.unitRepo.findOneBy({ id: unitId });
     if (!unit) throw new NotFoundException('Unit not found');
 
-    // Кто выбирает
     const isPlayerOne = battle.playerOne.id === playerId;
     const isPlayerTwo = battle.playerTwo.id === playerId;
 
@@ -173,7 +172,8 @@ export class BattleService {
       await this.playerRepo.save([battle.playerOne, battle.playerTwo]);
     }
 
-    return { message: 'Unit selected' };
+    // ⬇️ Вернём обновлённую битву с нужными связями
+    return this.findOne(battle.id);
   }
 
   async processBattleTurn(battleId: string): Promise<{

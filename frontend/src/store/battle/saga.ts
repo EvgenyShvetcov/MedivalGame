@@ -1,4 +1,4 @@
-import { call, delay, put, takeLatest } from "redux-saga/effects";
+import { call, delay, put, select, takeLatest } from "redux-saga/effects";
 import {
   startBattleRequest,
   startBattleSuccess,
@@ -36,6 +36,7 @@ import { BattleService } from "@/services/BattleService";
 import { apiSaga } from "@/services/sagaHelpers/apiSaga";
 import { IBattle } from "./types";
 import { navigateTo } from "@/utils/navigation";
+import { RootState } from "..";
 
 function* startBattleSaga() {
   try {
@@ -50,12 +51,22 @@ function* startBattleSaga() {
 function* makeTurnSaga(action: ReturnType<typeof makeTurnRequest>) {
   try {
     const service = container.get<BattleService>(TYPES.BattleService);
-    const data: IBattle = yield* apiSaga(
-      service,
-      "makeTurn",
+    const battleId: string = yield select(
+      (state: RootState) => state.battle.current?.id
+    );
+    const data: IBattle = yield call(
+      [service, service.makeTurn],
+      battleId,
       action.payload.unitId
     );
     yield put(makeTurnSuccess(data));
+    console.log("После makeTurnSuccess:", data);
+
+    const isBot = data.playerOne.isBot || data.playerTwo.isBot;
+    if (isBot && !data.isFinished) {
+      // 🔥 используем data.id, не state.battle.current.id
+      yield put(processTurnRequest(data.id));
+    }
   } catch (err) {
     yield put(makeTurnFailure("Ошибка хода"));
   }
