@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { processTurnRequest } from "@/store/battle";
+import { IBattleUnit } from "@/store/player/types";
 
 const TimerWrapper = styled.div<{ $danger?: boolean }>`
   margin-top: 1rem;
@@ -14,14 +15,16 @@ interface Props {
   battleId: string;
   turnStartedAt: string | null;
   turnDuration: number;
-  isUnitSelected: boolean;
+  selectedUnitId: string | null;
+  playerUnits: IBattleUnit[];
 }
 
 const BattleTimer: FC<Props> = ({
   battleId,
   turnStartedAt,
   turnDuration,
-  isUnitSelected,
+  playerUnits,
+  selectedUnitId,
 }) => {
   const dispatch = useDispatch();
   const [timeLeft, setTimeLeft] = useState(turnDuration);
@@ -37,16 +40,19 @@ const BattleTimer: FC<Props> = ({
       const remaining = Math.max(0, turnDuration - elapsed);
       setTimeLeft(remaining);
 
+      const selectedUnit = playerUnits.find((u) => u.id === selectedUnitId);
+
       if (remaining <= 0) {
         clearInterval(interval);
-        if (isUnitSelected) {
+
+        if (selectedUnit) {
           dispatch(processTurnRequest(battleId));
         }
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [battleId, turnStartedAt, turnDuration, isUnitSelected]);
+  }, [battleId, turnStartedAt, turnDuration, playerUnits, selectedUnitId]);
 
   return (
     <TimerWrapper $danger={timeLeft <= 5}>

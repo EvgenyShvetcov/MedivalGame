@@ -1,4 +1,4 @@
-import { IUnit } from "../battle/types";
+import { IUnit, UnitType } from "../battle/types";
 import { Location } from "../location/types";
 
 export interface IPlayer {
@@ -47,7 +47,10 @@ export interface IPlayerState {
 
 export interface IBattleUnit {
   id: string;
-  type: string; // 'INFANTRY' | 'ARCHER' | 'CAVALRY'
   level: number;
-  amount: number;
+  remaining: number; // <- это то, что ты используешь в бою
+  baseDamage: number;
+  originalUnit: {
+    type: UnitType;
+  };
 }

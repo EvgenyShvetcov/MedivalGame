@@ -44,10 +44,11 @@ const UnitCard: FC<Props> = ({ unit, onSelect, selected }) => {
   return (
     <Card $selected={selected} onClick={handleClick}>
       <p>
-        <strong>Тип:</strong> {getUnitIcon(unit.type)} {unit.type}
+        <strong>Тип:</strong> {getUnitIcon(unit.originalUnit.type)}{" "}
+        {unit.originalUnit.type}
       </p>
       <p>Уровень: {unit.level}</p>
-      <p>Количество: {unit.amount}</p>
+      <p>Количество: {unit.remaining}</p>
       <ButtonStub variant="battle">
         {selected ? "✅ Выбран" : "Выбрать"}
       </ButtonStub>

@@ -52,22 +52,6 @@ const BattlePage: FC = () => {
     }
   }, [battle?.id, id]);
 
-  useEffect(() => {
-    if (
-      battle &&
-      !battle.isFinished &&
-      battle.attackerSelectedUnit &&
-      battle.defenderSelectedUnit
-    ) {
-      dispatch(processTurnRequest(battle.id));
-    }
-  }, [
-    battle?.attackerSelectedUnit?.id,
-    battle?.defenderSelectedUnit?.id,
-    battle?.id,
-    battle?.isFinished,
-  ]);
-
   if (!battle?.playerOne || !battle?.playerTwo || !playerId)
     return <p>Загрузка боя...</p>;
 
@@ -88,6 +72,8 @@ const BattlePage: FC = () => {
   const handleChoose = (unitId: string) => {
     dispatch(makeTurnRequest({ unitId }));
   };
+  console.log("battle.current", battle);
+  console.log("player", player);
 
   return (
     <BattleLayout>
@@ -117,7 +103,8 @@ const BattlePage: FC = () => {
           battleId={battle.id}
           turnStartedAt={battle.turnStartedAt}
           turnDuration={battle.turnDuration}
-          isUnitSelected={isUnitSelected}
+          selectedUnitId={selectedUnitId}
+          playerUnits={player.units}
         />
         <SelectedUnits
           isPlayerOne={isPlayerOne}

@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -66,20 +65,20 @@ export class BattleService {
     return savedBattle;
   }
 
-  async createBattleStacks(battle: Battle) {
-    const [unitsP1, unitsP2] = await Promise.all([
-      this.unitRepo.find({ where: { owner: { id: battle.playerOne.id } } }),
-      this.unitRepo.find({ where: { owner: { id: battle.playerTwo.id } } }),
+  async createBattleStacks(battle: Battle): Promise<void> {
+    const [playerOneUnits, playerTwoUnits] = await Promise.all([
+      this.unitRepo.find({ where: { playerId: battle.playerOne.id } }),
+      this.unitRepo.find({ where: { playerId: battle.playerTwo.id } }),
     ]);
 
-    const stacks: BattleUnit[] = [];
+    const units: BattleUnit[] = [];
 
-    for (const unit of unitsP1) {
-      stacks.push(
+    for (const unit of playerOneUnits) {
+      units.push(
         this.battleUnitRepo.create({
           battle,
-          originalUnit: unit,
           owner: battle.playerOne,
+          originalUnit: unit,
           remaining: unit.amount,
           level: unit.level,
           baseDamage: unit.baseDamage,
@@ -87,12 +86,12 @@ export class BattleService {
       );
     }
 
-    for (const unit of unitsP2) {
-      stacks.push(
+    for (const unit of playerTwoUnits) {
+      units.push(
         this.battleUnitRepo.create({
           battle,
-          originalUnit: unit,
           owner: battle.playerTwo,
+          originalUnit: unit,
           remaining: unit.amount,
           level: unit.level,
           baseDamage: unit.baseDamage,
@@ -100,47 +99,43 @@ export class BattleService {
       );
     }
 
-    await this.battleUnitRepo.save(stacks);
+    await this.battleUnitRepo.save(units);
   }
 
   async chooseUnit(
-    battleId: string,
     playerId: string,
+    battleId: string,
     unitId: string,
   ): Promise<Battle> {
-    const battle = await this.battleRepo.findOne({
-      where: { id: battleId },
-      relations: ['playerOne', 'playerTwo'],
-    });
+    const battle = await this.findOne(battleId);
 
-    if (!battle) throw new NotFoundException('Battle not found');
-
-    const battleUnit = await this.battleUnitRepo.findOne({
-      where: { id: unitId },
+    const unit = await this.battleUnitRepo.findOne({
+      where: {
+        id: unitId,
+        battle: { id: battleId },
+        owner: { id: playerId },
+      },
       relations: ['owner', 'originalUnit'],
     });
 
-    if (!battleUnit) throw new NotFoundException('BattleUnit not found');
-    if (battleUnit.remaining <= 0) {
-      throw new BadRequestException(
-        'Этот юнит больше не может быть использован в бою',
-      );
+    if (!unit) {
+      throw new BadRequestException('Юнит не найден или недоступен');
+    }
+
+    if (unit.remaining <= 0) {
+      throw new BadRequestException('Этот юнит уже израсходован');
     }
 
     const isPlayerOne = battle.playerOne.id === playerId;
-    const isPlayerTwo = battle.playerTwo.id === playerId;
-
-    if (!isPlayerOne && !isPlayerTwo) {
-      throw new UnauthorizedException('Not your battle');
-    }
 
     if (isPlayerOne) {
-      battle.attackerSelectedUnit = battleUnit;
+      battle.attackerSelectedUnit = unit;
     } else {
-      battle.defenderSelectedUnit = battleUnit;
+      battle.defenderSelectedUnit = unit;
     }
 
-    return this.battleRepo.save(battle);
+    await this.battleRepo.save(battle);
+    return this.findOne(battleId);
   }
 
   compareUnits(
@@ -160,21 +155,11 @@ export class BattleService {
     return 'defender';
   }
 
-  async processBattleTurn(battleId: string) {
-    const battle = await this.battleRepo.findOne({
-      where: { id: battleId },
-      relations: [
-        'attackerSelectedUnit',
-        'attackerSelectedUnit.originalUnit',
-        'defenderSelectedUnit',
-        'defenderSelectedUnit.originalUnit',
-        'playerOne',
-        'playerTwo',
-      ],
-    });
+  async processBattleTurn(battleId: string): Promise<{ battle: Battle }> {
+    const battle = await this.findOne(battleId);
 
-    if (!battle) throw new NotFoundException('Битва не найдена');
-    if (battle.isFinished) throw new BadRequestException('Битва уже завершена');
+    const attacker = battle.playerOne;
+    const defender = battle.playerTwo;
 
     const attackerUnit = battle.attackerSelectedUnit;
     const defenderUnit = battle.defenderSelectedUnit;
@@ -183,129 +168,93 @@ export class BattleService {
       throw new BadRequestException('Оба игрока не выбрали юниты');
     }
 
-    const attackerPlayer = await this.playerService.findOne(
-      battle.playerOne.id,
+    const log = new BattleLog();
+    log.battle = battle;
+    log.turnNumber = battle.currentTurn;
+
+    const attackerCritChance = calculateCritChance(attacker) / 100;
+    const defenderCritChance = calculateCritChance(defender) / 100;
+    const attackerDodgeChance = calculateDodgeChance(attacker) / 100;
+    const defenderDodgeChance = calculateDodgeChance(defender) / 100;
+
+    const attackerCrit = Math.random() < attackerCritChance;
+    const defenderCrit = Math.random() < defenderCritChance;
+    const attackerDodged = Math.random() < attackerDodgeChance;
+    const defenderDodged = Math.random() < defenderDodgeChance;
+
+    const attackerBase = calculateDamage(
+      attacker,
+      defender,
+      attackerUnit.originalUnit,
     );
-    const defenderPlayer = await this.playerService.findOne(
-      battle.playerTwo.id,
+    const defenderBase = calculateDamage(
+      defender,
+      attacker,
+      defenderUnit.originalUnit,
     );
 
-    const winnerSide = this.compareUnits(
-      attackerUnit.originalUnit.type,
-      defenderUnit.originalUnit.type,
-    );
+    const attackerDamage = attackerBase + (attackerCrit ? 5 : 0);
+    const defenderDamage = defenderBase + (defenderCrit ? 5 : 0);
 
-    const summary = {
-      attackerDodge: false,
-      defenderDodge: false,
-      attackerCrit: false,
-      defenderCrit: false,
-      attackerDamage: 0,
-      defenderDamage: 0,
-    };
+    let damageDealtToDefender = 0;
+    let damageDealtToAttacker = 0;
 
-    if (winnerSide === 'attacker') {
-      const dodge = Math.random() * 100 < calculateDodgeChance(defenderPlayer);
-      summary.defenderDodge = dodge;
-
-      if (!dodge) {
-        let dmg = calculateDamage(
-          attackerPlayer,
-          defenderPlayer,
-          attackerUnit.originalUnit,
-        );
-        const crit = Math.random() * 100 < calculateCritChance(attackerPlayer);
-        summary.attackerCrit = crit;
-        if (crit) dmg *= 2;
-        summary.attackerDamage = dmg;
-        battle.playerTwo.health -= dmg;
-        attackerUnit.remaining = Math.max(0, attackerUnit.remaining - 1);
-      }
+    if (!defenderDodged) {
+      defender.health -= attackerDamage;
+      damageDealtToDefender = attackerDamage;
     }
 
-    if (winnerSide === 'defender') {
-      const dodge = Math.random() * 100 < calculateDodgeChance(attackerPlayer);
-      summary.attackerDodge = dodge;
-
-      if (!dodge) {
-        let dmg = calculateDamage(
-          defenderPlayer,
-          attackerPlayer,
-          defenderUnit.originalUnit,
-        );
-        const crit = Math.random() * 100 < calculateCritChance(defenderPlayer);
-        summary.defenderCrit = crit;
-        if (crit) dmg *= 2;
-        summary.defenderDamage = dmg;
-        battle.playerOne.health -= dmg;
-        defenderUnit.remaining = Math.max(0, defenderUnit.remaining - 1);
-      }
+    if (!attackerDodged) {
+      attacker.health -= defenderDamage;
+      damageDealtToAttacker = defenderDamage;
     }
 
-    const now = new Date();
-    const isP1Dead = battle.playerOne.health <= 0;
-    const isP2Dead = battle.playerTwo.health <= 0;
+    attackerUnit.remaining = Math.max(0, attackerUnit.remaining - 1);
+    defenderUnit.remaining = Math.max(0, defenderUnit.remaining - 1);
 
-    if (isP1Dead || isP2Dead) {
-      battle.isFinished = true;
-      battle.winner = isP1Dead ? battle.playerTwo : battle.playerOne;
-      battle.playerOne.currentBattleId = null;
-      battle.playerTwo.currentBattleId = null;
-      battle.playerOne.lastBattleEndedAt = now;
-      battle.playerTwo.lastBattleEndedAt = now;
-
-      const xp =
-        50 + Math.max(battle.playerOne.level, battle.playerTwo.level) * 10;
-      await this.playerService.addExperience(battle.winner, xp);
-      battle.winner.gold += 20;
-
-      await this.playerRepo.save([battle.playerOne, battle.playerTwo]);
-    }
-
-    // Сохраняем изменения
     await this.battleUnitRepo.save([attackerUnit, defenderUnit]);
+    await this.playerRepo.save([attacker, defender]);
 
-    // Если юниты закончились — удаляем конкретные
-    const toDelete: BattleUnit[] = [];
-    if (attackerUnit.remaining <= 0) {
-      toDelete.push(attackerUnit);
-    }
-    if (defenderUnit.remaining <= 0) {
-      toDelete.push(defenderUnit);
-    }
+    log.attacker = attacker;
+    log.defender = defender;
+    log.attackerUnit = attackerUnit.originalUnit;
+    log.defenderUnit = defenderUnit.originalUnit;
+    log.attackerCrit = attackerCrit;
+    log.defenderCrit = defenderCrit;
+    log.attackerDodged = attackerDodged;
+    log.defenderDodged = defenderDodged;
+    log.damageDealtToAttacker = damageDealtToAttacker;
+    log.damageDealtToDefender = damageDealtToDefender;
 
-    if (toDelete.length > 0) {
-      await this.battleUnitRepo.remove(toDelete);
-    }
-
-    await this.battleLogRepo.save({
-      battle,
-      turnNumber: battle.currentTurn,
-      attackerUnit,
-      defenderUnit,
-      attacker: battle.playerOne,
-      defender: battle.playerTwo,
-      damageDealtToAttacker: summary.defenderDamage,
-      damageDealtToDefender: summary.attackerDamage,
-      attackerCrit: summary.attackerCrit,
-      defenderCrit: summary.defenderCrit,
-      attackerDodged: summary.attackerDodge,
-      defenderDodged: summary.defenderDodge,
-      createdAt: now,
-    });
+    await this.battleLogRepo.save(log);
 
     battle.attackerSelectedUnit = null;
     battle.defenderSelectedUnit = null;
-    battle.currentTurn++;
-    battle.turnStartedAt = now;
+    battle.currentTurn += 1;
+    battle.turnStartedAt = new Date();
 
-    const saved = await this.battleRepo.save(battle);
-    const fullBattle = await this.findOne(saved.id);
+    const attackerDead = attacker.health <= 0;
+    const defenderDead = defender.health <= 0;
 
-    return {
-      battle: fullBattle,
-      summary,
-    };
+    if (attackerDead || defenderDead) {
+      battle.isFinished = true;
+      battle.winner = attackerDead ? defender : attacker;
+      const winner = battle.winner;
+      winner.experience += 10;
+      winner.gold += 20;
+      await this.playerRepo.save(winner);
+
+      await this.battleUnitRepo.delete({ battle: { id: battle.id } });
+
+      battle.playerOne.currentBattleId = null;
+      battle.playerTwo.currentBattleId = null;
+      battle.playerOne.lastBattleEndedAt = new Date();
+      battle.playerTwo.lastBattleEndedAt = new Date();
+      await this.playerRepo.save([battle.playerOne, battle.playerTwo]);
+    }
+
+    await this.battleRepo.save(battle);
+    return { battle };
   }
 
   async findOne(id: string): Promise<Battle> {
@@ -324,47 +273,28 @@ export class BattleService {
 
     if (!battle) throw new NotFoundException(`Battle ${id} not found`);
 
-    // Загружаем боевые юниты отдельно
     const battleUnits = await this.battleUnitRepo.find({
       where: { battle: { id } },
       relations: ['originalUnit', 'owner'],
     });
 
-    // Фильтруем боевые юниты по владельцам
-    const p1Units = battleUnits.filter(
+    (battle.playerOne as any).units = battleUnits.filter(
       (u) => u.owner.id === battle.playerOne.id,
     );
-    const p2Units = battleUnits.filter(
+
+    (battle.playerTwo as any).units = battleUnits.filter(
       (u) => u.owner.id === battle.playerTwo.id,
     );
-
-    // Временно добавляем их как поле .units (это НЕ сохраняется в БД)
-    (battle.playerOne as any).units = p1Units;
-    (battle.playerTwo as any).units = p2Units;
 
     return battle;
   }
 
-  // Получить список всех битв
-  async findAll(): Promise<Battle[]> {
-    return this.battleRepo.find({
-      relations: ['playerOne', 'playerTwo', 'winner'],
-    });
-  }
-
-  // Получить текущую битву игрока
   async getCurrentBattle(playerId: string): Promise<Battle | null> {
     const player = await this.playerRepo.findOneBy({ id: playerId });
     if (!player?.currentBattleId) return null;
     return this.findOne(player.currentBattleId);
   }
 
-  // Удалить битву
-  async remove(id: string): Promise<void> {
-    await this.battleRepo.delete(id);
-  }
-
-  // Получить логи битвы
   async getLogsForBattle(battleId: string): Promise<BattleLog[]> {
     return this.battleLogRepo.find({
       where: { battle: { id: battleId } },
@@ -372,7 +302,6 @@ export class BattleService {
     });
   }
 
-  // Создать битву с ботом
   async createBotBattle(playerId: string): Promise<Battle> {
     const player = await this.playerRepo.findOneByOrFail({ id: playerId });
 
@@ -387,8 +316,9 @@ export class BattleService {
       agility: 5,
       defense: 5,
       password: '123123123',
-      authId: 'bot-auth-' + Math.random().toString(36).substring(2, 8), // 🔥 важно
+      authId: 'bot-auth-' + Math.random().toString(36).substring(2, 8),
     });
+
     await this.playerRepo.save(bot);
 
     const battle = this.battleRepo.create({
@@ -397,6 +327,7 @@ export class BattleService {
       currentTurn: 1,
       turnStartedAt: new Date(),
     });
+
     const savedBattle = await this.battleRepo.save(battle);
 
     await this.createBattleStacks(savedBattle);
@@ -407,11 +338,20 @@ export class BattleService {
     return savedBattle;
   }
 
-  // Покинуть бой
   async leaveBattle(playerId: string): Promise<void> {
     const player = await this.playerRepo.findOneBy({ id: playerId });
     if (!player) return;
     player.currentBattleId = null;
     await this.playerRepo.save(player);
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.battleRepo.delete(id);
+  }
+
+  async findAll(): Promise<Battle[]> {
+    return this.battleRepo.find({
+      relations: ['playerOne', 'playerTwo', 'winner'],
+    });
   }
 }

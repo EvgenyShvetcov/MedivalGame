@@ -55,19 +55,19 @@ function* makeTurnSaga(action: ReturnType<typeof makeTurnRequest>) {
     const battleId: string = yield select(
       (state: RootState) => state.battle.current?.id
     );
+
     const data: IBattle = yield call(
       [service, service.makeTurn],
       battleId,
       action.payload.unitId
     );
-    yield put(makeTurnSuccess(data));
-    console.log("После makeTurnSuccess:", data);
 
-    const isBot = data.playerOne.isBot || data.playerTwo.isBot;
-    if (isBot && !data.isFinished) {
-      // 🔥 используем data.id, не state.battle.current.id
-      yield put(processTurnRequest(data.id));
-    }
+    yield put(makeTurnSuccess(data));
+
+    // 🔥 Больше не вызываем processTurnRequest здесь — ждём таймер
+    // if (isBot && !data.isFinished) {
+    //   yield put(processTurnRequest(data.id));
+    // }
   } catch (err) {
     yield put(makeTurnFailure("Ошибка хода"));
   }
@@ -154,13 +154,16 @@ function* processTurnSaga(action: ReturnType<typeof processTurnRequest>) {
       [service, service.processTurn],
       action.payload
     );
+
     yield put(processTurnSuccess(result.battle));
     yield put(loadLogsRequest(result.battle.id));
+
+    // ✅ обновим игрока
+    yield put(fetchPlayerRequest());
   } catch (err) {
     yield put(processTurnFailure("Ошибка при обработке хода"));
   }
 }
-
 function* loadLogsSaga(action: ReturnType<typeof loadLogsRequest>) {
   try {
     const service = container.get<BattleService>(TYPES.BattleService);
