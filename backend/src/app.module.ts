@@ -23,6 +23,7 @@ import { ItemModule } from './item/item.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
+      entities: [__dirname + '/**/entities/*.entity.{ts,js}'],
     }),
     PlayerModule,
     BattleModule,
