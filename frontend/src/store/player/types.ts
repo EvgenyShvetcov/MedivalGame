@@ -28,7 +28,7 @@ export interface IPlayer {
   cavalryDefense: number;
 
   attributePoints: number;
-  units?: IUnit[];
+  units?: IBattleUnit[];
   location?: Location;
 
   currentBattleId: string | null;
@@ -43,4 +43,11 @@ export interface IPlayerState {
   data: IPlayer | null;
   isLoading: boolean;
   error: string | null;
+}
+
+export interface IBattleUnit {
+  id: string;
+  type: string; // 'INFANTRY' | 'ARCHER' | 'CAVALRY'
+  level: number;
+  amount: number;
 }

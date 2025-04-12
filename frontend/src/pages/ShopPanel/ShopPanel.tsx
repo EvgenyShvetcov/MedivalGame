@@ -40,15 +40,16 @@ const ShopPanel: FC = () => {
       <ShopTitle>{selectedShop?.name || "Магазин"}</ShopTitle>
 
       <ItemList>
-        {items.map((item) => (
-          <ShopItem key={item.id}>
-            <span>{item.name || item.unitType}</span>
-            <span>💰 {item.price}</span>
-            <Button variant="default" onClick={() => handleBuyItem(item.id)}>
-              Купить
-            </Button>
-          </ShopItem>
-        ))}
+        {items &&
+          items.map((item) => (
+            <ShopItem key={item.id}>
+              <span>{item.name || item.unitType}</span>
+              <span>💰 {item.price}</span>
+              <Button variant="default" onClick={() => handleBuyItem(item.id)}>
+                Купить
+              </Button>
+            </ShopItem>
+          ))}
       </ItemList>
     </ShopWrapper>
   );

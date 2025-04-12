@@ -309,6 +309,25 @@ export class BattleService {
     });
 
     if (!battle) throw new NotFoundException(`Battle ${id} not found`);
+
+    // Загружаем боевые юниты отдельно
+    const battleUnits = await this.battleUnitRepo.find({
+      where: { battle: { id } },
+      relations: ['originalUnit', 'owner'],
+    });
+
+    // Фильтруем боевые юниты по владельцам
+    const p1Units = battleUnits.filter(
+      (u) => u.owner.id === battle.playerOne.id,
+    );
+    const p2Units = battleUnits.filter(
+      (u) => u.owner.id === battle.playerTwo.id,
+    );
+
+    // Временно добавляем их как поле .units (это НЕ сохраняется в БД)
+    (battle.playerOne as any).units = p1Units;
+    (battle.playerTwo as any).units = p2Units;
+
     return battle;
   }
 

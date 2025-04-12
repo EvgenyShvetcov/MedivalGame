@@ -3,6 +3,7 @@ import { IUnit } from "@/store/battle/types";
 import { Button } from "@/components/Button/Button";
 import styled from "styled-components";
 import { getUnitIcon } from "@/utils/unitIcons";
+import { IBattleUnit } from "@/store/player/types";
 
 const Card = styled.div<{ $selected?: boolean }>`
   background: rgba(0, 0, 0, 0.6);
@@ -28,7 +29,7 @@ const ButtonStub = styled(Button)`
 `;
 
 interface Props {
-  unit: IUnit;
+  unit: IBattleUnit;
   onSelect: (id: string) => void;
   selected?: boolean;
 }
