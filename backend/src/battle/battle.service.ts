@@ -127,7 +127,6 @@ export class BattleService {
     }
 
     const isPlayerOne = battle.playerOne.id === playerId;
-
     if (isPlayerOne) {
       battle.attackerSelectedUnit = unit;
     } else {
@@ -143,7 +142,6 @@ export class BattleService {
     defender: UnitType,
   ): 'attacker' | 'defender' | 'draw' {
     if (attacker === defender) return 'draw';
-
     if (
       (attacker === UnitType.CAVALRY && defender === UnitType.ARCHER) ||
       (attacker === UnitType.ARCHER && defender === UnitType.INFANTRY) ||
@@ -151,7 +149,6 @@ export class BattleService {
     ) {
       return 'attacker';
     }
-
     return 'defender';
   }
 
@@ -160,7 +157,6 @@ export class BattleService {
 
     const attacker = battle.playerOne;
     const defender = battle.playerTwo;
-
     const attackerUnit = battle.attackerSelectedUnit;
     const defenderUnit = battle.defenderSelectedUnit;
 
@@ -244,7 +240,7 @@ export class BattleService {
       winner.gold += 20;
       await this.playerRepo.save(winner);
 
-      await this.battleUnitRepo.delete({ battle: { id: battle.id } });
+      // ⛔ больше не удаляем боевые юниты здесь
 
       battle.playerOne.currentBattleId = null;
       battle.playerTwo.currentBattleId = null;
@@ -281,7 +277,6 @@ export class BattleService {
     (battle.playerOne as any).units = battleUnits.filter(
       (u) => u.owner.id === battle.playerOne.id,
     );
-
     (battle.playerTwo as any).units = battleUnits.filter(
       (u) => u.owner.id === battle.playerTwo.id,
     );
@@ -329,7 +324,6 @@ export class BattleService {
     });
 
     const savedBattle = await this.battleRepo.save(battle);
-
     await this.createBattleStacks(savedBattle);
 
     player.currentBattleId = savedBattle.id;
@@ -339,10 +333,21 @@ export class BattleService {
   }
 
   async leaveBattle(playerId: string): Promise<void> {
-    const player = await this.playerRepo.findOneBy({ id: playerId });
-    if (!player) return;
+    const player = await this.playerRepo.findOne({
+      where: { id: playerId },
+      relations: ['currentBattle'],
+    });
+
+    if (!player || !player.currentBattleId) return;
+
+    const battleId = player.currentBattleId;
     player.currentBattleId = null;
     await this.playerRepo.save(player);
+
+    const battle = await this.battleRepo.findOneBy({ id: battleId });
+    if (battle?.isFinished) {
+      await this.battleUnitRepo.delete({ battle: { id: battle.id } });
+    }
   }
 
   async remove(id: string): Promise<void> {
