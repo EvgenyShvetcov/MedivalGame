@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Player } from 'src/player/entities/player.entity';
 import { BattleService } from './battle.service';
 import { PlayerService } from 'src/player/player.service';
@@ -9,6 +9,7 @@ export class MatchmakingService {
   private queue: Player[] = [];
 
   constructor(
+    @Inject(forwardRef(() => BattleService))
     private readonly battleService: BattleService,
     private readonly playerService: PlayerService,
   ) {}

@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Battle } from './entities/battle.entity';
 import { CreateBattleDto } from './dto/create-battle.dto';
-import { UpdateBattleDto } from './dto/update-battle.dto';
 import { Player } from 'src/player/entities/player.entity';
 import { Unit } from 'src/unit/entities/unit.entity';
 import { UnitType } from 'src/unit/unit-type.enum';
@@ -311,5 +310,74 @@ export class BattleService {
 
     if (!battle) throw new NotFoundException(`Battle ${id} not found`);
     return battle;
+  }
+
+  // Получить список всех битв
+  async findAll(): Promise<Battle[]> {
+    return this.battleRepo.find({
+      relations: ['playerOne', 'playerTwo', 'winner'],
+    });
+  }
+
+  // Получить текущую битву игрока
+  async getCurrentBattle(playerId: string): Promise<Battle | null> {
+    const player = await this.playerRepo.findOneBy({ id: playerId });
+    if (!player?.currentBattleId) return null;
+    return this.findOne(player.currentBattleId);
+  }
+
+  // Удалить битву
+  async remove(id: string): Promise<void> {
+    await this.battleRepo.delete(id);
+  }
+
+  // Получить логи битвы
+  async getLogsForBattle(battleId: string): Promise<BattleLog[]> {
+    return this.battleLogRepo.find({
+      where: { battle: { id: battleId } },
+      order: { turnNumber: 'ASC' },
+    });
+  }
+
+  // Создать битву с ботом
+  async createBotBattle(playerId: string): Promise<Battle> {
+    const player = await this.playerRepo.findOneByOrFail({ id: playerId });
+
+    const bot = this.playerRepo.create({
+      username: 'BOT_' + Math.random().toString(36).substring(2, 8),
+      isBot: true,
+      level: player.level,
+      health: player.health,
+      gold: 0,
+      experience: 0,
+      strength: 5,
+      agility: 5,
+      defense: 5,
+      authId: 'bot-auth-' + Math.random().toString(36).substring(2, 8), // 🔥 важно
+    });
+    await this.playerRepo.save(bot);
+
+    const battle = this.battleRepo.create({
+      playerOne: player,
+      playerTwo: bot,
+      currentTurn: 1,
+      turnStartedAt: new Date(),
+    });
+    const savedBattle = await this.battleRepo.save(battle);
+
+    await this.createBattleStacks(savedBattle);
+
+    player.currentBattleId = savedBattle.id;
+    await this.playerRepo.save(player);
+
+    return savedBattle;
+  }
+
+  // Покинуть бой
+  async leaveBattle(playerId: string): Promise<void> {
+    const player = await this.playerRepo.findOneBy({ id: playerId });
+    if (!player) return;
+    player.currentBattleId = null;
+    await this.playerRepo.save(player);
   }
 }

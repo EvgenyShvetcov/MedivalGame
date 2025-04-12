@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Battle } from './entities/battle.entity';
 import { BattleService } from './battle.service';
@@ -14,8 +14,10 @@ import { BattleUnit } from './entities/battle-unit.entity';
   imports: [
     TypeOrmModule.forFeature([Battle, Player, Unit, BattleLog, BattleUnit]),
     PlayerModule,
+    forwardRef(() => BattleModule),
   ],
   controllers: [BattleController],
   providers: [BattleService, MatchmakingService],
+  exports: [BattleService, MatchmakingService],
 })
 export class BattleModule {}
