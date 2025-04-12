@@ -9,6 +9,7 @@ import { LocationModule } from './location/location.module';
 import { ShopModule } from './shop/shop.module';
 import { ShopItemModule } from './shop-item/shop-item.module';
 import { PlayerAttributesModule } from './player-attributes/player-attributes.module';
+import { ItemModule } from './item/item.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PlayerAttributesModule } from './player-attributes/player-attributes.mo
     ShopModule,
     ShopItemModule,
     PlayerAttributesModule,
+    ItemModule,
   ],
 })
 export class AppModule {}

@@ -40,4 +40,7 @@ export class ShopItem {
 
   @Column({ type: 'int', nullable: true })
   stock?: number;
+
+  @Column({ type: 'uuid', nullable: true })
+  itemId?: string;
 }

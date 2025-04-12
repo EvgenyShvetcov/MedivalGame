@@ -85,9 +85,8 @@ export class PlayerService {
     const player = await this.playerRepository.findOne({
       where: { id },
       relations: {
-        location: {
-          availableDestinations: true,
-        },
+        location: { availableDestinations: true },
+        items: { item: true },
       },
     });
 
@@ -95,7 +94,34 @@ export class PlayerService {
       throw new NotFoundException(`Player with ID ${id} not found`);
     }
 
-    return player;
+    // Подсчёт бонусов от экипированных вещей
+    const equippedItems = player.items.filter((pi) => pi.isEquipped);
+    const bonusTotals: Record<string, number> = {};
+
+    for (const pi of equippedItems) {
+      const bonuses = pi.item.bonuses || {};
+      for (const [key, value] of Object.entries(bonuses)) {
+        bonusTotals[key] = (bonusTotals[key] || 0) + value;
+      }
+    }
+
+    // Применяем бонусы к копии игрока (без записи в БД!)
+    const finalPlayer = {
+      ...player,
+      strength: player.strength + (bonusTotals.strength || 0),
+      agility: player.agility + (bonusTotals.agility || 0),
+      defense: player.defense + (bonusTotals.defense || 0),
+      archerAttack: player.archerAttack + (bonusTotals.archerAttack || 0),
+      archerDefense: player.archerDefense + (bonusTotals.archerDefense || 0),
+      infantryAttack: player.infantryAttack + (bonusTotals.infantryAttack || 0),
+      infantryDefense:
+        player.infantryDefense + (bonusTotals.infantryDefense || 0),
+      cavalryAttack: player.cavalryAttack + (bonusTotals.cavalryAttack || 0),
+      cavalryDefense: player.cavalryDefense + (bonusTotals.cavalryDefense || 0),
+      bonuses: bonusTotals,
+    };
+
+    return finalPlayer;
   }
 
   async findByAuthId(authId: string): Promise<Player | null> {

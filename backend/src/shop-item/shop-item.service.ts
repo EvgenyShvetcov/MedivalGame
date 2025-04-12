@@ -33,6 +33,13 @@ export class ShopItemService {
     return this.shopItemRepo.save(item);
   }
 
+  async findByItemType(type: ShopItemType): Promise<ShopItem[]> {
+    return this.shopItemRepo.find({
+      where: { itemType: type },
+      relations: ['item'],
+    });
+  }
+
   async findAll(): Promise<ShopItem[]> {
     return this.shopItemRepo.find({ relations: ['shop'] });
   }
@@ -86,16 +93,14 @@ export class ShopItemService {
     });
 
     if (!item) throw new NotFoundException('Товар не найден');
-
     if (item.stock !== undefined && item.stock <= 0) {
       throw new BadRequestException('Товара больше нет в наличии');
     }
-
     if (player.gold < item.price) {
       throw new BadRequestException('Недостаточно золота');
     }
 
-    // 🛒 Проверка типа товара (пока поддерживаются только юниты)
+    // 🛒 Покупка юнита
     if (item.itemType === ShopItemType.UNIT) {
       if (!item.unitType || !item.level) {
         throw new BadRequestException('Некорректный юнит в товаре');
@@ -110,7 +115,28 @@ export class ShopItemService {
       await unitRepo.save(unit);
     }
 
-    // 💸 Списываем золото и уменьшаем stock
+    // 🧳 Покупка предмета
+    if (item.itemType === ShopItemType.ITEM) {
+      if (!item.itemId) {
+        throw new BadRequestException('Некорректный предмет в товаре');
+      }
+
+      const itemRepo = this.shopItemRepo.manager.getRepository('Item');
+      const playerItemRepo =
+        this.shopItemRepo.manager.getRepository('PlayerItem');
+
+      const gameItem = await itemRepo.findOneBy({ id: item.itemId });
+      if (!gameItem) throw new NotFoundException('Предмет не найден');
+
+      const playerItem = playerItemRepo.create({
+        item: gameItem,
+        owner: player,
+        isEquipped: false,
+      });
+      await playerItemRepo.save(playerItem);
+    }
+
+    // 💸 Обновляем золото и stock
     player.gold -= item.price;
     await this.shopItemRepo.manager.getRepository('Player').save(player);
 

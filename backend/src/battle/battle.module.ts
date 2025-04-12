@@ -8,10 +8,11 @@ import { Unit } from 'src/unit/entities/unit.entity';
 import { PlayerModule } from 'src/player/player.module';
 import { BattleLog } from './entities/battle-log.entity';
 import { MatchmakingService } from './matchmaking.service';
+import { BattleUnit } from './entities/battle-unit.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Battle, Player, Unit, BattleLog]),
+    TypeOrmModule.forFeature([Battle, Player, Unit, BattleLog, BattleUnit]),
     PlayerModule,
   ],
   controllers: [BattleController],

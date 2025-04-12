@@ -1,4 +1,5 @@
 import { IsString } from 'class-validator';
+import { PlayerItem } from 'src/item/entities/player-item.entity';
 import { Location } from 'src/location/entities/location.entity';
 import { Unit } from 'src/unit/entities/unit.entity';
 import {
@@ -95,4 +96,7 @@ export class Player {
 
   @Column({ default: 0 })
   attributePoints: number;
+
+  @OneToMany(() => PlayerItem, (pi) => pi.owner)
+  items: PlayerItem[];
 }

@@ -19,7 +19,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ShopItem } from './entities/shop-item.entity';
+import { ShopItem, ShopItemType } from './entities/shop-item.entity';
 import { CurrentPlayer } from 'src/auth/decorators/current-player.decorator';
 import { PlayerService } from 'src/player/player.service';
 import { UpdateShopItemDto } from './dto/update-shop-item.dto';
@@ -97,5 +97,11 @@ export class ShopItemController {
   @ApiResponse({ status: 404, description: 'Товар не найден' })
   update(@Param('id') id: string, @Body() dto: UpdateShopItemDto) {
     return this.shopItemService.update(id, dto);
+  }
+
+  @Get('type/:type')
+  @ApiParam({ name: 'type', enum: ShopItemType })
+  getByType(@Param('type') type: ShopItemType) {
+    return this.shopItemService.findByItemType(type);
   }
 }

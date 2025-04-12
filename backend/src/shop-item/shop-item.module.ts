@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ShopItem } from './entities/shop-item.entity';
-import { Shop } from 'src/shop/entities/shop.entity';
 import { ShopItemService } from './shop-item.service';
 import { ShopItemController } from './shop-item.controller';
-import { Player } from 'src/player/entities/player.entity';
-import { Location } from 'src/location/entities/location.entity';
-import { PlayerModule } from 'src/player/player.module';
+import { ShopItem } from './entities/shop-item.entity';
+import { Shop } from '../shop/entities/shop.entity';
+import { Player } from '../player/entities/player.entity';
+import { PlayerItem } from '../item/entities/player-item.entity';
+import { Item } from '../item/entities/item.entity';
+import { PlayerModule } from '../player/player.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ShopItem, Shop, Player, Location]),
+    TypeOrmModule.forFeature([ShopItem, Shop, Player, PlayerItem, Item]),
     PlayerModule,
   ],
   controllers: [ShopItemController],

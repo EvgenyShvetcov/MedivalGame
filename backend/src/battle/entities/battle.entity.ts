@@ -6,8 +6,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Player } from 'src/player/entities/player.entity';
-import { Unit } from 'src/unit/entities/unit.entity';
 import { BattleLog } from './battle-log.entity';
+import { BattleUnit } from './battle-unit.entity';
 
 @Entity()
 export class Battle {
@@ -43,11 +43,19 @@ export class Battle {
   @Column({ type: 'int', default: 30 })
   turnDuration: number;
 
-  @ManyToOne(() => Unit, { nullable: true, onDelete: 'SET NULL' })
-  attackerSelectedUnit: Unit | null;
+  @ManyToOne(() => BattleUnit, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  attackerSelectedUnit: BattleUnit | null;
 
-  @ManyToOne(() => Unit, { nullable: true, onDelete: 'SET NULL' })
-  defenderSelectedUnit: Unit | null;
+  @ManyToOne(() => BattleUnit, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  defenderSelectedUnit: BattleUnit | null;
 
   @OneToMany(() => BattleLog, (log) => log.battle)
   logs: BattleLog[];
