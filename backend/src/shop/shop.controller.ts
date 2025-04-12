@@ -1,34 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards, Req } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { ShopService } from './shop.service';
-import { CreateShopDto } from './dto/create-shop.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RequestWithUser } from 'src/auth/types';
 
+@ApiTags('Shop')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('shop')
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
-  @Post()
-  create(@Body() createShopDto: CreateShopDto) {
-    return this.shopService.create(createShopDto);
-  }
-
   @Get()
+  @ApiOperation({ summary: 'Получить все магазины' })
   findAll() {
     return this.shopService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Получить магазин по ID' })
+  @ApiParam({ name: 'id' })
   findOne(@Param('id') id: string) {
-    return this.shopService.findOne(+id);
+    return this.shopService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopService.update(+id, updateShopDto);
+  @Get('by-location/:locationId')
+  @ApiOperation({ summary: 'Получить магазин по ID локации' })
+  @ApiParam({ name: 'locationId' })
+  findByLocation(@Param('locationId') locationId: string) {
+    return this.shopService.findByLocation(locationId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shopService.remove(+id);
+  @Post(':shopItemId/buy')
+  @ApiOperation({ summary: 'Купить товар из магазина' })
+  @ApiParam({ name: 'shopItemId' })
+  buy(@Param('shopItemId') id: string, @Req() req: RequestWithUser) {
+    return this.shopService.buy(id, req.user.id);
   }
 }

@@ -262,8 +262,22 @@ export class BattleService {
       await this.playerRepo.save([battle.playerOne, battle.playerTwo]);
     }
 
+    // Сохраняем изменения
     await this.battleUnitRepo.save([attackerUnit, defenderUnit]);
-    await this.battleUnitRepo.delete({ battle: { id: battle.id } });
+
+    // Если юниты закончились — удаляем конкретные
+    const toDelete: BattleUnit[] = [];
+    if (attackerUnit.remaining <= 0) {
+      toDelete.push(attackerUnit);
+    }
+    if (defenderUnit.remaining <= 0) {
+      toDelete.push(defenderUnit);
+    }
+
+    if (toDelete.length > 0) {
+      await this.battleUnitRepo.remove(toDelete);
+    }
+
     await this.battleLogRepo.save({
       battle,
       turnNumber: battle.currentTurn,
