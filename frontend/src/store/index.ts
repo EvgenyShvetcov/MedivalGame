@@ -6,9 +6,13 @@ import { authSaga } from "./auth/saga";
 import player from "./player";
 import location from "./location";
 import battle from "./battle";
+import item from "./item";
+import shop from "./shop";
 import { playerSaga } from "./player/saga";
 import { locationSaga } from "./location/saga";
 import { battleSaga } from "./battle/saga";
+import { shopSaga } from "./shop/saga";
+import { itemSaga } from "./item/saga";
 // import modal, { modalSaga } from "./modal";
 // тут будут остальные слайсы
 
@@ -19,8 +23,8 @@ const rootReducer = combineReducers({
   player,
   location,
   battle,
-  // modal,
-  // + auth, player, и т.д.
+  item,
+  shop,
 });
 
 export const store = configureStore({
@@ -34,8 +38,8 @@ sagaMiddleware.run(function* rootSaga() {
   yield spawn(playerSaga);
   yield spawn(locationSaga);
   yield spawn(battleSaga);
-  // yield modalSaga();
-  // + другие саги
+  yield spawn(itemSaga);
+  yield spawn(shopSaga);
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

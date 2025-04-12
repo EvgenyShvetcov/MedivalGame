@@ -353,6 +353,7 @@ export class BattleService {
       strength: 5,
       agility: 5,
       defense: 5,
+      password: '123123123',
       authId: 'bot-auth-' + Math.random().toString(36).substring(2, 8), // 🔥 важно
     });
     await this.playerRepo.save(bot);

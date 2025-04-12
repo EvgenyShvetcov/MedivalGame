@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { changeLocationRequest } from "@/store/player";
@@ -18,6 +18,8 @@ import {
   ButtonsGroup,
 } from "./styled";
 import { Button } from "@/components/Button/Button";
+import Sidebar from "@/components/Sidebar/Sidebar";
+import ShopPanel from "@/pages/ShopPanel/ShopPanel";
 
 const LocationActions: FC = () => {
   const dispatch = useDispatch();
@@ -27,6 +29,9 @@ const LocationActions: FC = () => {
   const isSearching = useSelector(
     (state: RootState) => state.battle.isSearching
   );
+
+  const [showShopPanel, setShowShopPanel] = useState(false);
+  const shopButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleMove = (key: string) => {
     dispatch(changeLocationRequest(key));
@@ -72,8 +77,12 @@ const LocationActions: FC = () => {
       return (
         <Section>
           <SectionTitle>🛒 Вы в магазине</SectionTitle>
-          <Button variant="default" disabled>
-            📦 Открыть ассортимент (заглушка)
+          <Button
+            variant="default"
+            onClick={() => setShowShopPanel(true)}
+            ref={shopButtonRef}
+          >
+            📦 Открыть ассортимент
           </Button>
         </Section>
       );
@@ -103,6 +112,17 @@ const LocationActions: FC = () => {
           ))}
         </DestinationsList>
       </Section>
+
+      {showShopPanel && (
+        <Sidebar
+          onClose={() => setShowShopPanel(false)}
+          title="Магазин"
+          position="right"
+          ignoreRef={shopButtonRef}
+        >
+          <ShopPanel />
+        </Sidebar>
+      )}
     </ActionsWrapper>
   );
 };

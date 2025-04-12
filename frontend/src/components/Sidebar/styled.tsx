@@ -1,13 +1,25 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-export const SidebarWrapper = styled.div`
+interface SidebarProps {
+  position?: "left" | "right";
+}
+
+export const SidebarWrapper = styled.div<SidebarProps>`
   position: absolute;
   top: 0;
-  left: 0;
-  width: 700px; // 💡 Была 350px
+  ${({ position }) =>
+    position === "right"
+      ? css`
+          right: 0;
+          border-left: 4px solid #333;
+        `
+      : css`
+          left: 0;
+          border-right: 4px solid #333;
+        `}
+  width: 700px;
   height: 100vh;
   background-color: #1b1b1b;
-  border-right: 4px solid #333;
   padding: 1rem;
   z-index: 10;
   overflow-y: auto;

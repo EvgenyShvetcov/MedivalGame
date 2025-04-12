@@ -6,16 +6,22 @@ interface Props {
   children: ReactNode;
   title?: string;
   ignoreRef?: React.RefObject<HTMLElement>;
+  position?: "left" | "right"; // ✅ добавил
 }
 
-const Sidebar: FC<Props> = ({ onClose, children, title, ignoreRef }) => {
+const Sidebar: FC<Props> = ({
+  onClose,
+  children,
+  title,
+  ignoreRef,
+  position = "left",
+}) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
 
-      // если клик был по ref кнопке — ничего не делаем
       if (ignoreRef?.current && ignoreRef.current.contains(target)) return;
 
       if (ref.current && !ref.current.contains(target)) {
@@ -25,10 +31,10 @@ const Sidebar: FC<Props> = ({ onClose, children, title, ignoreRef }) => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
+  }, [onClose, ignoreRef]);
 
   return (
-    <SidebarWrapper ref={ref}>
+    <SidebarWrapper ref={ref} position={position}>
       <CloseButton onClick={onClose}>✖</CloseButton>
       {title && <h2>{title}</h2>}
       {children}
