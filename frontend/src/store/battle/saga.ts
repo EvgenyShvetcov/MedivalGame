@@ -37,6 +37,7 @@ import { apiSaga } from "@/services/sagaHelpers/apiSaga";
 import { IBattle } from "./types";
 import { navigateTo } from "@/utils/navigation";
 import { RootState } from "..";
+import { fetchPlayerRequest } from "../player";
 
 function* startBattleSaga() {
   try {
@@ -139,11 +140,13 @@ function* getBattleSaga(action: ReturnType<typeof getBattleRequest>) {
     const service = container.get<BattleService>(TYPES.BattleService);
     const data: IBattle = yield* apiSaga(service, "getById", action.payload);
     yield put(getBattleSuccess(data));
+
+    // 🔥 загрузим логи боя
+    yield put(loadLogsRequest(data.id));
   } catch (err) {
-    // Можно обработку ошибки, если хочешь
+    // Обработка ошибки (если захочешь)
   }
 }
-
 function* processTurnSaga(action: ReturnType<typeof processTurnRequest>) {
   try {
     const service = container.get<BattleService>(TYPES.BattleService);
@@ -152,7 +155,7 @@ function* processTurnSaga(action: ReturnType<typeof processTurnRequest>) {
       action.payload
     );
     yield put(processTurnSuccess(result.battle));
-    yield put(loadLogsRequest(result.battle.id)); // ⬅️
+    yield put(loadLogsRequest(result.battle.id));
   } catch (err) {
     yield put(processTurnFailure("Ошибка при обработке хода"));
   }
@@ -173,6 +176,7 @@ function* leaveBattleSaga() {
     const service = container.get<BattleService>(TYPES.BattleService);
     yield call([service, service.leave]);
     yield put(leaveBattleSuccess());
+    yield put(fetchPlayerRequest()); // ⬅️ сразу обновим
     navigateTo("/game");
   } catch {
     yield put(leaveBattleFailure("Не удалось выйти из боя"));
@@ -201,4 +205,5 @@ export function* battleSaga() {
   yield takeLatest(processTurnRequest.type, processTurnSaga);
   yield takeLatest(leaveBattleRequest.type, leaveBattleSaga);
   yield takeLatest(getCurrentBattleRequest.type, getCurrentBattleSaga);
+  yield takeLatest(loadLogsRequest.type, loadLogsSaga);
 }

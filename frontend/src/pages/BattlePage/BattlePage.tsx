@@ -16,6 +16,13 @@ import { Button } from "@/components/Button/Button";
 import VictoryScreen from "./components/VictroyScreen";
 import BattleTimer from "./components/BattleTimer";
 import SelectedUnits from "./components/SelectedUnits";
+import { fetchPlayerRequest } from "@/store/player";
+import BattleLayout, {
+  Center,
+  EnemyPanel,
+  LogSection,
+  Sidebar,
+} from "@/layouts/BattleLayout";
 
 const BattlePage: FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +31,12 @@ const BattlePage: FC = () => {
   const battle = useSelector((state: RootState) => state.battle.current);
   const playerId = useSelector((state: RootState) => state.player.data?.id);
   const logs = useSelector((state: RootState) => state.battle.logs);
+
+  useEffect(() => {
+    if (!playerId) {
+      dispatch(fetchPlayerRequest());
+    }
+  }, [playerId]);
 
   useEffect(() => {
     if (id) {
@@ -77,44 +90,55 @@ const BattlePage: FC = () => {
   };
 
   return (
-    <div>
-      <BattleInfo
-        player={player}
-        opponent={opponent}
-        currentTurn={battle.currentTurn}
-      />
-      <BattleTimer
-        battleId={battle.id}
-        turnStartedAt={battle.turnStartedAt}
-        turnDuration={battle.turnDuration}
-        isUnitSelected={isUnitSelected}
-      />
+    <BattleLayout>
+      <Sidebar>
+        <h3>🧱 Ваши юниты</h3>
+        {player.units?.length ? (
+          player.units.map((unit) => (
+            <UnitCard
+              key={unit.id}
+              unit={unit}
+              onSelect={handleChoose}
+              selected={unit.id === selectedUnitId}
+            />
+          ))
+        ) : (
+          <p>У вас нет юнитов для выбора.</p>
+        )}
+      </Sidebar>
 
-      <SelectedUnits
-        isPlayerOne={isPlayerOne}
-        attackerSelectedUnit={battle.attackerSelectedUnit}
-        defenderSelectedUnit={battle.defenderSelectedUnit}
-      />
+      <Center>
+        <BattleInfo
+          player={player}
+          opponent={opponent}
+          currentTurn={battle.currentTurn}
+        />
+        <BattleTimer
+          battleId={battle.id}
+          turnStartedAt={battle.turnStartedAt}
+          turnDuration={battle.turnDuration}
+          isUnitSelected={isUnitSelected}
+        />
+        <SelectedUnits
+          isPlayerOne={isPlayerOne}
+          attackerSelectedUnit={battle.attackerSelectedUnit}
+          defenderSelectedUnit={battle.defenderSelectedUnit}
+        />
+        <Button variant="darkWood" onClick={() => navigate("/game")}>
+          ⬅️ Выйти из боя
+        </Button>
+      </Center>
 
-      <h3>Выберите юнита:</h3>
-      {player.units?.length ? (
-        player.units.map((unit) => (
-          <UnitCard
-            key={unit.id}
-            unit={unit}
-            onSelect={handleChoose}
-            selected={unit.id === selectedUnitId}
-          />
-        ))
-      ) : (
-        <p>У вас нет юнитов для выбора.</p>
-      )}
-      <Button variant="location" onClick={() => navigate("/game")}>
-        ⬅️ Выйти из боя
-      </Button>
+      <EnemyPanel>
+        <h3>👹 Противник</h3>
+        <p>{opponent.username}</p>
+        <p>❤️ {opponent.health} HP</p>
+      </EnemyPanel>
 
-      <BattleLog logs={logs} />
-    </div>
+      <LogSection>
+        <BattleLog logs={logs} />
+      </LogSection>
+    </BattleLayout>
   );
 };
 

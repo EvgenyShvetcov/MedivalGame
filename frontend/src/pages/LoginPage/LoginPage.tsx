@@ -61,7 +61,7 @@ const LoginPage = () => {
 
         {error && <ErrorText>{error}</ErrorText>}
 
-        <Button type="submit" disabled={isLoading}>
+        <Button variant="darkWood" type="submit" disabled={isLoading}>
           {isLoading ? "Вход..." : "Войти"}
         </Button>
       </Form>

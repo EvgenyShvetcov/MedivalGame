@@ -41,7 +41,7 @@ const VictoryScreen: FC<Props> = ({ winner, logs }) => {
 
       <BattleLog logs={logs} />
 
-      <Button onClick={() => dispatch(leaveBattleRequest())}>
+      <Button variant="darkWood" onClick={() => dispatch(leaveBattleRequest())}>
         🚪 Выйти из боя
       </Button>
     </Wrapper>

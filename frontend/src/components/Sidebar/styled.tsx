@@ -4,7 +4,7 @@ export const SidebarWrapper = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: 350px;
+  width: 700px; // 💡 Была 350px
   height: 100vh;
   background-color: #1b1b1b;
   border-right: 4px solid #333;

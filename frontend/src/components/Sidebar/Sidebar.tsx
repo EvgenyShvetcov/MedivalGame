@@ -5,14 +5,20 @@ interface Props {
   onClose: () => void;
   children: ReactNode;
   title?: string;
+  ignoreRef?: React.RefObject<HTMLElement>;
 }
 
-const Sidebar: FC<Props> = ({ onClose, children, title }) => {
+const Sidebar: FC<Props> = ({ onClose, children, title, ignoreRef }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+
+      // если клик был по ref кнопке — ничего не делаем
+      if (ignoreRef?.current && ignoreRef.current.contains(target)) return;
+
+      if (ref.current && !ref.current.contains(target)) {
         onClose();
       }
     };

@@ -1,24 +1,21 @@
-// styled.ts
 import styled from "styled-components";
-
-export const Wrapper = styled.div`
-  padding: 40px;
-  color: #f0f0f0;
-`;
 
 export const ActionsWrapper = styled.div`
   background: rgba(0, 0, 0, 0.65);
   border: 1px solid #555;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 2rem;
   max-width: 600px;
   width: 100%;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
 
 export const Title = styled.h2`
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
+  margin: 0;
+  font-size: 1.8rem;
 `;
 
 export const Description = styled.p`
@@ -26,57 +23,26 @@ export const Description = styled.p`
   color: #ccc;
 `;
 
+export const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const SectionTitle = styled.h4`
+  margin: 0;
+  font-size: 1.2rem;
+  color: #eee;
+`;
+
 export const DestinationsList = styled.div`
-  margin-top: 1.2rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 `;
 
-export const ActionButton = styled.button`
-  background: #3e6bd6;
-  border: none;
-  border-radius: 6px;
-  padding: 0.6rem 1rem;
-  font-size: 0.95rem;
-  color: white;
-  cursor: pointer;
-
-  &:hover {
-    background: #2c53b7;
-  }
-
-  &:disabled {
-    background: #555;
-    cursor: not-allowed;
-  }
-`;
-
-export const MoveButton = styled.button`
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 6px;
-  background: #3e6bd6;
-  color: white;
-  cursor: pointer;
-
-  &:hover {
-    background: #2b4fb0;
-  }
-
-  &:disabled {
-    background: #555;
-    cursor: not-allowed;
-  }
-`;
-
-const BackgroundWrapper = styled.div<{ imageUrl?: string }>`
-  min-height: 100vh;
-  background: ${({ imageUrl }) =>
-    imageUrl ? `url(${imageUrl}) center/cover no-repeat` : "#111"};
+export const ButtonsGroup = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: start;
-  padding: 2rem;
+  flex-direction: column;
+  gap: 0.6rem;
 `;

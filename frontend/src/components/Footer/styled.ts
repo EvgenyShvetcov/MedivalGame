@@ -1,57 +1,65 @@
 import styled from "styled-components";
 
 export const FooterWrapper = styled.footer`
-  position: absolute;
+  position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
   height: 100px;
 
-  background-color: #1e1e1e;
+  background: radial-gradient(
+      circle at 20% 30%,
+      rgba(50, 50, 50, 0.2) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(80, 80, 80, 0.15) 0%,
+      transparent 50%
+    ),
+    linear-gradient(to top, #0a0a0a, #151515);
+
+  border-top: 3px solid #2a2a2a;
 
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 2rem;
+  padding: 0 2rem;
 
-  padding: 10px;
-  border-top: 4px solid #444;
+  z-index: 1000;
+`;
 
-  z-index: 3;
+export const LeftGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
 
-  button {
-    padding: 10px 20px;
-    background-color: #2f2f2f;
-    color: #f8f8f8;
-    border: 2px solid #777;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 1rem;
-    font-family: "Arial", sans-serif;
-
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-      background-color: #444;
-    }
-  }
+export const RightGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 `;
 
 export const PlayerStats = styled.div`
-  position: absolute;
-  right: 20px;
-  bottom: 15px;
-
   display: flex;
-  gap: 20px;
-
-  font-size: 1.1rem;
+  align-items: center;
+  gap: 10px; // общий отступ между блоками
+  font-size: 1rem;
   color: #f8f8f8;
   font-weight: bold;
+  font-family: "MedievalSharp", serif;
 
   span {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    white-space: nowrap;
+
+    & .label {
+      display: inline-block;
+      min-width: 1.6em; // выравнивание по ширине "иконок"
+      text-align: center;
+    }
   }
 `;

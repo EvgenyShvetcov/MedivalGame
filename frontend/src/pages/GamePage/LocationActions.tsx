@@ -8,7 +8,15 @@ import {
   cancelSearchRequest,
 } from "@/store/battle";
 import Spinner from "@/components/Spinner/Spinner";
-import { ActionsWrapper, Title, Description, DestinationsList } from "./styled";
+import {
+  ActionsWrapper,
+  Title,
+  Description,
+  DestinationsList,
+  Section,
+  SectionTitle,
+  ButtonsGroup,
+} from "./styled";
 import { Button } from "@/components/Button/Button";
 
 const LocationActions: FC = () => {
@@ -27,47 +35,47 @@ const LocationActions: FC = () => {
   const renderLocationUI = () => {
     if (location?.isBattleArena) {
       return (
-        <>
-          <h3>⚔️ Вы на арене</h3>
+        <Section>
+          <SectionTitle>⚔️ Вы на арене</SectionTitle>
 
           {isSearching ? (
             <>
               <Spinner variant="battle" text="⏳ Идёт поиск соперника..." />
               <Button
-                variant="battle"
+                variant="darkWood"
                 onClick={() => dispatch(cancelSearchRequest())}
               >
                 ❌ Отменить поиск
               </Button>
             </>
           ) : (
-            <>
+            <ButtonsGroup>
               <Button
-                variant="battle"
+                variant="darkWood"
                 onClick={() => dispatch(startBotBattleRequest())}
               >
                 🤖 Начать бой с ботом
               </Button>
               <Button
-                variant="battle"
+                variant="darkWood"
                 onClick={() => dispatch(searchBattleRequest())}
               >
                 🧑 Найти соперника
               </Button>
-            </>
+            </ButtonsGroup>
           )}
-        </>
+        </Section>
       );
     }
 
     if (location?.isShop) {
       return (
-        <>
-          <h3>🛒 Вы в магазине</h3>
+        <Section>
+          <SectionTitle>🛒 Вы в магазине</SectionTitle>
           <Button variant="default" disabled>
             📦 Открыть ассортимент (заглушка)
           </Button>
-        </>
+        </Section>
       );
     }
 
@@ -81,18 +89,20 @@ const LocationActions: FC = () => {
 
       {renderLocationUI()}
 
-      <h4 style={{ marginTop: "1.2rem" }}>Доступные переходы:</h4>
-      <DestinationsList>
-        {destinations.map((loc) => (
-          <Button
-            key={loc.key}
-            onClick={() => handleMove(loc.key)}
-            variant="location"
-          >
-            Перейти в {loc.name}
-          </Button>
-        ))}
-      </DestinationsList>
+      <Section>
+        <SectionTitle>🚪 Доступные переходы:</SectionTitle>
+        <DestinationsList>
+          {destinations.map((loc) => (
+            <Button
+              key={loc.key}
+              onClick={() => handleMove(loc.key)}
+              variant="darkWood"
+            >
+              Перейти в {loc.name}
+            </Button>
+          ))}
+        </DestinationsList>
+      </Section>
     </ActionsWrapper>
   );
 };

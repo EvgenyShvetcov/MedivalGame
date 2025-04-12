@@ -15,6 +15,16 @@ const Card = styled.div<{ $selected?: boolean }>`
   box-shadow: ${({ $selected }) =>
     $selected ? "0 0 10px rgba(255, 215, 0, 0.6)" : "none"};
   transition: all 0.2s ease-in-out;
+  cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
+
+  &:hover {
+    border-color: ${({ $selected }) => ($selected ? "#ffd700" : "#666")};
+  }
+`;
+
+const ButtonStub = styled(Button)`
+  pointer-events: none;
+  opacity: 0.8;
 `;
 
 interface Props {
@@ -24,16 +34,22 @@ interface Props {
 }
 
 const UnitCard: FC<Props> = ({ unit, onSelect, selected }) => {
+  const handleClick = () => {
+    if (!selected) {
+      onSelect(unit.id);
+    }
+  };
+
   return (
-    <Card $selected={selected}>
+    <Card $selected={selected} onClick={handleClick}>
       <p>
         <strong>Тип:</strong> {getUnitIcon(unit.type)} {unit.type}
       </p>
       <p>Уровень: {unit.level}</p>
       <p>Количество: {unit.amount}</p>
-      <Button onClick={() => onSelect(unit.id)} disabled={selected}>
+      <ButtonStub variant="battle">
         {selected ? "✅ Выбран" : "Выбрать"}
-      </Button>
+      </ButtonStub>
     </Card>
   );
 };
