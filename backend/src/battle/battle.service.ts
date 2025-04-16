@@ -205,8 +205,8 @@ export class BattleService {
       damageDealtToAttacker = defenderDamage;
     }
 
-    attackerUnit.remaining = Math.max(0, attackerUnit.remaining - 1);
-    defenderUnit.remaining = Math.max(0, defenderUnit.remaining - 1);
+    attackerUnit.remaining = attackerUnit.remaining - 1;
+    defenderUnit.remaining = defenderUnit.remaining - 1;
 
     await this.battleUnitRepo.save([attackerUnit, defenderUnit]);
     await this.playerRepo.save([attacker, defender]);
@@ -239,9 +239,6 @@ export class BattleService {
       winner.experience += 10;
       winner.gold += 20;
       await this.playerRepo.save(winner);
-
-      // ⛔ больше не удаляем боевые юниты здесь
-
       battle.playerOne.currentBattleId = null;
       battle.playerTwo.currentBattleId = null;
       battle.playerOne.lastBattleEndedAt = new Date();
