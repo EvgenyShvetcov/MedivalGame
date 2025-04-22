@@ -26,7 +26,10 @@ const battleSlice = createSlice({
       state.isLoading = false;
     },
 
-    makeTurnRequest(state, _action: PayloadAction<{ unitId: string }>) {
+    makeTurnRequest(
+      state,
+      _action: PayloadAction<{ battleId: string; unitId: string }>
+    ) {
       state.isLoading = true;
     },
     makeTurnSuccess(state, action: PayloadAction<IBattle>) {

@@ -48,26 +48,24 @@ function* startBattleSaga() {
     yield put(startBattleFailure("Не удалось начать бой"));
   }
 }
-
 function* makeTurnSaga(action: ReturnType<typeof makeTurnRequest>) {
   try {
-    const service = container.get<BattleService>(TYPES.BattleService);
-    const battleId: string = yield select(
-      (state: RootState) => state.battle.current?.id
-    );
+    const { battleId, unitId } = action.payload;
 
+    const service = container.get<BattleService>(TYPES.BattleService);
     const data: IBattle = yield call(
       [service, service.makeTurn],
       battleId,
-      action.payload.unitId
+      unitId
     );
 
     yield put(makeTurnSuccess(data));
+    console.log("После makeTurnSuccess:", data);
 
-    // 🔥 Больше не вызываем processTurnRequest здесь — ждём таймер
-    // if (isBot && !data.isFinished) {
-    //   yield put(processTurnRequest(data.id));
-    // }
+    const isBot = data.playerOne.isBot || data.playerTwo.isBot;
+    if (isBot && !data.isFinished) {
+      yield put(processTurnRequest(data.id));
+    }
   } catch (err) {
     yield put(makeTurnFailure("Ошибка хода"));
   }

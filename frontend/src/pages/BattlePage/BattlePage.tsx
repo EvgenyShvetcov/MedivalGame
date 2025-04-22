@@ -70,7 +70,7 @@ const BattlePage: FC = () => {
     : !!battle.defenderSelectedUnit;
 
   const handleChoose = (unitId: string) => {
-    dispatch(makeTurnRequest({ unitId }));
+    dispatch(makeTurnRequest({ battleId: battle.id, unitId }));
   };
   console.log("battle.current", battle);
   console.log("player", player);
