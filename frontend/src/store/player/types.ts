@@ -48,7 +48,7 @@ export interface IPlayerState {
 export interface IBattleUnit {
   id: string;
   level: number;
-  remaining: number; // <- это то, что ты используешь в бою
+  remaining: number;
   baseDamage: number;
   originalUnit: {
     type: UnitType;

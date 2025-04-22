@@ -77,17 +77,17 @@ export class BattleController {
   }
 
   @Post(':id/choose-unit')
-  @ApiOperation({ summary: 'Выбор юнита для текущего раунда боя' })
-  @ApiParam({ name: 'id', description: 'ID битвы' })
-  @ApiBody({ type: ChooseUnitDto })
-  @ApiResponse({ status: 200, description: 'Юнит выбран' })
-  @ApiResponse({ status: 401, description: 'Неавторизован' })
   async chooseUnit(
     @Param('id') battleId: string,
     @CurrentPlayer() player: { userId: string },
     @Body() dto: ChooseUnitDto,
   ) {
-    return this.battleService.chooseUnit(battleId, player.userId, dto.unitId);
+    console.log('🎯 [Controller] chooseUnit ->', {
+      battleId,
+      userId: player.userId,
+      unitId: dto.unitId,
+    });
+    return this.battleService.chooseUnit(player.userId, battleId, dto.unitId);
   }
 
   @Post(':id/process-turn')

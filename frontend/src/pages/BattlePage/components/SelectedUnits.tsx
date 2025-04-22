@@ -1,6 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 import { IUnit } from "@/store/battle/types";
+import { IBattleUnit } from "@/store/player/types";
 
 const Wrapper = styled.div`
   margin-top: 1.5rem;
@@ -13,8 +14,8 @@ const Wrapper = styled.div`
 
 interface Props {
   isPlayerOne: boolean;
-  attackerSelectedUnit: IUnit | null;
-  defenderSelectedUnit: IUnit | null;
+  attackerSelectedUnit: IBattleUnit | null;
+  defenderSelectedUnit: IBattleUnit | null;
 }
 
 const SelectedUnits: FC<Props> = ({
@@ -23,12 +24,13 @@ const SelectedUnits: FC<Props> = ({
   defenderSelectedUnit,
 }) => {
   const myUnit = isPlayerOne ? attackerSelectedUnit : defenderSelectedUnit;
+  const unit = myUnit?.originalUnit;
 
   return (
     <Wrapper>
       <h4>🧙 Выбранные юниты:</h4>
       <p>
-        🧍‍♂️ Вы: {myUnit ? `${myUnit.type} (ур. ${myUnit.level})` : "— не выбран"}
+        🧍‍♂️ Вы: {unit ? `${unit.type} (ур. ${myUnit.level})` : "— не выбран"}
       </p>
       <p>🧟 Противник: — ожидается выбор</p>
     </Wrapper>

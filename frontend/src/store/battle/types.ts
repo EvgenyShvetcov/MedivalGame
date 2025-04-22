@@ -1,4 +1,4 @@
-import { IPlayer } from "../player/types";
+import { IBattleUnit, IPlayer } from "../player/types";
 
 export interface IBattle {
   id: string;
@@ -9,8 +9,8 @@ export interface IBattle {
   isFinished: boolean;
   turnStartedAt: string | null;
   turnDuration: number;
-  attackerSelectedUnit: IUnit | null;
-  defenderSelectedUnit: IUnit | null;
+  attackerSelectedUnit: IBattleUnit | null;
+  defenderSelectedUnit: IBattleUnit | null;
   logs?: IBattleLog[];
 }
 

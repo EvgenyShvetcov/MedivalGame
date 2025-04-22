@@ -52,6 +52,8 @@ function* makeTurnSaga(action: ReturnType<typeof makeTurnRequest>) {
   try {
     const { battleId, unitId } = action.payload;
 
+    console.log(action.payload, "action.payload");
+
     const service = container.get<BattleService>(TYPES.BattleService);
     const data: IBattle = yield call(
       [service, service.makeTurn],

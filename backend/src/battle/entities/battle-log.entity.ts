@@ -46,4 +46,10 @@ export class BattleLog {
 
   @Column({ type: 'timestamp', default: () => 'now()' })
   createdAt: Date;
+
+  @Column({ nullable: true })
+  attackerUnitId: string;
+
+  @Column({ nullable: true })
+  defenderUnitId: string;
 }
